@@ -5,7 +5,7 @@
     <title>Title</title>
 </head>
 <body>
-
+    Execute1
     <form action="execute" method="POST"> {% csrf_token %}
         dataset id
         <input name="dataset_id" />
@@ -13,6 +13,16 @@
         <input name="mapping_filename"/>
         distribution download url
         <input name="distribution_url"/>
+        <input type="submit"/>
+    </form>
+    Execute2
+    <form action="execute2" method="POST"> {% csrf_token %}
+        dataset id2
+        <input name="dataset_id" />
+        mapping_document_download_url
+        <input name="mapping_document_download_url"/>
+        distribution_download_url
+        <input name="distribution_download_url"/>
         <input type="submit"/>
     </form>
 

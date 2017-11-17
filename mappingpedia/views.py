@@ -79,3 +79,25 @@ def execute_mapping(request):
         return render(request, 'msg.html', {'msg': 'Execution results can be found here %s'%result_url})
     else:
         return render(request, 'msg.html', {'msg': 'error: '+response.content})
+
+
+def execute_mapping2(request):
+    print "in execution 2"
+    url = os.path.join(mappingpedia_engine_base_url, 'executions2')
+    print url
+    data = {
+        "mapping_document_download_url": request.POST['mapping_document_download_url'],
+        "organizationId":  organization_id,
+        "datasetId": request.POST['dataset_id'],
+        "distribution_download_url": request.POST['distribution_download_url']
+    }
+    print "data: "
+    print data
+    response = requests.post(url, data)
+    if response.status_code is 200:
+        result_url = json.loads(response.content)['mapping_execution_result_download_url']
+        print "result : "
+        print response.content
+        return render(request, 'msg.html', {'msg': 'Execution results can be found here %s'%result_url})
+    else:
+        return render(request, 'msg.html', {'msg': 'error: '+response.content})

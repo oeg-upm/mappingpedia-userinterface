@@ -24,5 +24,8 @@ urlpatterns = [
     url('mapping_view', views.mapping_view),
     url('mapping_register', views.mapping_register),
     url('execution_view', views.execute_view),
+    url('execute2', views.execute_mapping2),
     url('execute', views.execute_mapping),
+
+
 ]
