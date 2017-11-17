@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+    <form action="execute" method="POST"> {% csrf_token %}
+        dataset id
+        <input name="dataset_id" />
+        mapping file name
+        <input name="mapping_filename"/>
+        distribution download url
+        <input name="distribution_url"/>
+        <input type="submit"/>
+    </form>
+
+</body>
+</html>
