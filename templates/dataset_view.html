@@ -7,9 +7,11 @@
 <body>
     dataset view
 
-    <form action="dataset_register" method="POST"> {% csrf_token %}
+    <form action="dataset_register" method="POST" enctype="multipart/form-data"> {% csrf_token %}
         distribution url
         <input name="url" />
+        distrubution file
+        <input name="file" type="file"/>
         <input type="submit"/>
     </form>
 

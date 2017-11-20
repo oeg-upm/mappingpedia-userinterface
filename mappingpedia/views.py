@@ -3,9 +3,12 @@ from django.http import JsonResponse
 import os
 import requests
 import json
+import random
+import string
+
 
 mappingpedia_engine_base_url = "http://mappingpedia-engine.linkeddata.es"
-# mappingpedia_engine_base_url = "http://localhost:8090"
+#mappingpedia_engine_base_url = "http://localhost:8090"
 #mappingpedia_engine_base_url = "http://127.0.0.1:80/"
 organization_id = "zaragoza_test"
 
@@ -15,12 +18,20 @@ def dataset_view(request):
 
 
 def dataset_register(request):
-    distribution_download_url = request.POST['url']
     url = os.path.join(mappingpedia_engine_base_url, 'datasets', organization_id)
-    data = {
-        "distribution_download_url": distribution_download_url,
-    }
-    response = requests.post(url, data)
+    if 'url' in request.POST and request.POST['url'].strip() != '':
+        print "url in POST"
+        distribution_download_url = request.POST['url']
+        data = {
+            "distribution_download_url": distribution_download_url,
+        }
+        response = requests.post(url, data)
+    elif 'file' in request.FILES:
+        distribution_file = request.FILES['file']
+        response = requests.post(url, files=[('distribution_file', distribution_file)])
+    else:
+        print "ERROR"
+        return "error"
     if response.status_code == 200:
         dataset_id = json.loads(response.content)['dataset_id']
         return render(request, 'msg.html', {'msg': 'The dataset has been registered with id = '+dataset_id})
@@ -28,15 +39,37 @@ def dataset_register(request):
         return render(request, 'msg.html', {'msg': response.content})
 
 
+def handle_uploaded_file(f):
+    file_name = os.path.join('temp',get_random_test(size=4))
+    print "file name: "+file_name
+    with open(file_name, 'wb+') as destination:
+        for chunk in f.chunks():
+            destination.write(chunk)
+    return file_name
+
+
+def get_random_test(size = 8):
+    chars = string.ascii_letters + string.digits
+    return ''.join(random.choice(chars) for _ in range(size))
+
+
 def mapping_register(request):
     print request.POST
     dataset_id = request.POST['dataset_id']
-    mapping_file_url = request.POST['mapping_file_url']
-    url = os.path.join(mappingpedia_engine_base_url, 'mappings', organization_id, dataset_id)
-    data = {
-        "mappingDocumentDownloadURL": mapping_file_url
-    }
-    response = requests.post(url, data)
+    if 'mapping_file_url' in request.POST and request.POST['mapping_file_url'].strip() != '':
+        mapping_file_url = request.POST['mapping_file_url']
+        url = os.path.join(mappingpedia_engine_base_url, 'mappings', organization_id, dataset_id)
+        data = {
+            "mappingDocumentDownloadURL": mapping_file_url
+        }
+        response = requests.post(url, data)
+    else:
+        mapping_file = request.FILES['mapping_file']
+        print mapping_file
+        url = os.path.join(mappingpedia_engine_base_url, 'mappings', organization_id, dataset_id)
+        print "the url"
+        print url
+        response = requests.post(url, files=[('mappingFile', mapping_file)])
     if response.status_code == 200:
         print response.content
         download_url = json.loads(response.content)['mapping_document_download_url']
@@ -47,13 +80,6 @@ def mapping_register(request):
 
 def mapping_view(request):
     return render(request, 'mapping_view.html')
-
-
-# def get_mappings_for_dataset(request):
-#     dataset_id = request.POST['dataset_id']
-#     url = os.path.join(mappingpedia_engine_base_url, 'mappings', 'findMappingDocumentsByDatasetId?='+)
-#     url = os.path.join(mappingpedia_engine_base_url)
-#     requests.post()
 
 
 def execute_view(request):
