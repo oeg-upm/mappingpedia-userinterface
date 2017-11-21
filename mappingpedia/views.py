@@ -83,7 +83,14 @@ def mapping_view(request):
 
 
 def execute_view(request):
-    return render(request, 'execute_view.html')
+    url = os.path.join(mappingpedia_engine_base_url, 'datasets')
+    response = requests.get(url)
+    if response.status_code == 200:
+        datasets = json.loads(response.content)['results']
+        return render(request, 'execute_view.html', {'datasets': datasets})
+    else:
+        return render(request, 'msg.html', {'msg': 'error'})
+
 
 
 def execute_mapping(request):

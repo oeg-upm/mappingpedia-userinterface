@@ -15,6 +15,7 @@
         <input name="distribution_url"/>
         <input type="submit"/>
     </form>
+    <hr>
     Execute2
     <form action="execute2" method="POST"> {% csrf_token %}
         dataset id2
@@ -25,6 +26,16 @@
         <input name="distribution_download_url"/>
         <input type="submit"/>
     </form>
+    <hr>
+    <form action="execute3" method="POST"> {% csrf_token %}
+        dataset id3
+        <select>
+            {%for dataset in datasets%}
+              <option value="{{dataset.id}}">{{dataset.id}}</option>
+            {%endfor%}
+        </select>
+        <input type="submit"/>
 
+    </form>
 </body>
 </html>
