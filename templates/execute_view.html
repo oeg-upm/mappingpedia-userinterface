@@ -1,10 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends "base.html" %}
+{% block body %}
     Execute1
     <form action="execute" method="POST"> {% csrf_token %}
         dataset id
@@ -37,5 +32,4 @@
         <input type="submit"/>
 
     </form>
-</body>
-</html>
+{% endblock %}

@@ -1,23 +1,25 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Dataset view</title>
-</head>
-<body>
-    dataset view
+{% extends "base.html" %}
+{% block body %}
+<br>
+<form action="dataset_register" method="POST" enctype="multipart/form-data"> {% csrf_token %}
 
-    <form action="dataset_register" method="POST" enctype="multipart/form-data"> {% csrf_token %}
-        distribution url
-        <input name="url" />
-        distrubution file
-        <input name="file" type="file"/>
-        <input type="submit"/>
-    </form>
+    <div class="form-group">
+        <label for="org">Organization Name</label>
+        <input type="text" name="organization" class="form-control" id="org" placeholder="Enter the organization name">
+    </div>
+
+    <div class="form-group">
+        <label for="dist-url">Distribution URL</label>
+        <input type="text" name="url" class="form-control" id="dist-url" placeholder="Enter the distribution url">
+    </div>
+
+    <div class="form-group">
+        <label for="dist-file">Distribution File</label>
+        <input type="file" name="file" class="form-control-file"  id="dist-file">
+    </div>
+    <input type="submit" class="btn btn-primary"/>
+</form>
 
 
-</body>
-</html>
-
-
+{% endblock %}
 

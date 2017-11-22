@@ -1,11 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Mappings view</title>
-</head>
-<body>
-    dataset view
+{% extends "base.html" %}
+{% block body %}
+    mapping view
 
     <form action="mapping_register" method="POST" enctype="multipart/form-data"> {% csrf_token %}
         dataset id
@@ -25,8 +20,5 @@
         <!--<input type="submit"/>-->
     <!--</form>-->
 
-</body>
-</html>
-
-
+{% endblock %}
 

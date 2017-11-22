@@ -18,15 +18,14 @@ from django.contrib import admin
 import views
 
 urlpatterns = [
-    url(r'^admin/', admin.site.urls),
+#    url(r'^admin/', admin.site.urls),
     url('dataset_view', views.dataset_view),
     url('dataset_register', views.dataset_register),
     url('mapping_view', views.mapping_view),
     url('mapping_register', views.mapping_register),
-    # url('mapping_upload', views.mapping_upload),
     url('execution_view', views.execute_view),
     url('execute2', views.execute_mapping2),
     url('execute', views.execute_mapping),
-
+    url('', views.home),
 
 ]

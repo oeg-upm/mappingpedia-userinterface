@@ -14,13 +14,16 @@ organization_id = "zaragoza_test"
 
 
 def dataset_view(request):
-    return render(request, 'dataset_view.html')
+    return render(request, 'dataset_view.html', {'nav': 'dataset'})
 
 
 def dataset_register(request):
     url = os.path.join(mappingpedia_engine_base_url, 'datasets', organization_id)
+    if 'organization' not in request.POST or request.POST['organization'].strip() != '':
+        organization = request.POST['organization']
+    else:
+        organization = organization_id
     if 'url' in request.POST and request.POST['url'].strip() != '':
-        print "url in POST"
         distribution_download_url = request.POST['url']
         data = {
             "distribution_download_url": distribution_download_url,
@@ -39,13 +42,13 @@ def dataset_register(request):
         return render(request, 'msg.html', {'msg': response.content})
 
 
-def handle_uploaded_file(f):
-    file_name = os.path.join('temp',get_random_test(size=4))
-    print "file name: "+file_name
-    with open(file_name, 'wb+') as destination:
-        for chunk in f.chunks():
-            destination.write(chunk)
-    return file_name
+# def handle_uploaded_file(f):
+#     file_name = os.path.join('temp',get_random_test(size=4))
+#     print "file name: "+file_name
+#     with open(file_name, 'wb+') as destination:
+#         for chunk in f.chunks():
+#             destination.write(chunk)
+#     return file_name
 
 
 def get_random_test(size = 8):
@@ -79,7 +82,7 @@ def mapping_register(request):
 
 
 def mapping_view(request):
-    return render(request, 'mapping_view.html')
+    return render(request, 'mapping_view.html', {'nav': 'mapping'})
 
 
 def execute_view(request):
@@ -87,10 +90,9 @@ def execute_view(request):
     response = requests.get(url)
     if response.status_code == 200:
         datasets = json.loads(response.content)['results']
-        return render(request, 'execute_view.html', {'datasets': datasets})
+        return render(request, 'execute_view.html', {'datasets': datasets, 'nav': 'execute'})
     else:
-        return render(request, 'msg.html', {'msg': 'error'})
-
+        return render(request, 'msg.html', {'msg': 'error', 'nav': 'execute'})
 
 
 def execute_mapping(request):
@@ -134,3 +136,7 @@ def execute_mapping2(request):
         return render(request, 'msg.html', {'msg': 'Execution results can be found here %s'%result_url})
     else:
         return render(request, 'msg.html', {'msg': 'error: '+response.content})
+
+
+def home(request):
+    return render(request, 'home.html')
