@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block body %}
 <br>
-<form action="dataset_register" method="POST" enctype="multipart/form-data"> {% csrf_token %}
+<form method="POST" enctype="multipart/form-data"> {% csrf_token %}
 
     <div class="form-group">
         <label for="org">Organization Name</label>
