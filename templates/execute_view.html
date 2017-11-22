@@ -1,24 +1,31 @@
 {% extends "base.html" %}
 {% block body %}
-    <form method="POST"> {% csrf_token %}
-        dataset id2
-        <input name="dataset_id" />
-        mapping_document_download_url
-        <input name="mapping_document_download_url"/>
-        distribution_download_url
-        <input name="distribution_download_url"/>
-        <input type="submit"/>
-    </form>
-    <hr>
 
-    <form action="execute3" method="POST"> {% csrf_token %}
-        dataset id3
-        <select>
+<br>
+<form method="POST"> {% csrf_token %}
+
+    <div class="form-group">
+        <label for="dataset_select">Dataset</label>
+        <select name="dataset_id" class="form-control" id="dataset_select">
             {%for dataset in datasets%}
-              <option value="{{dataset.id}}">{{dataset.id}}</option>
+            <option value="{{dataset.id}}">{{dataset.id}}</option>
             {%endfor%}
         </select>
-        <input type="submit"/>
+    </div>
 
-    </form>
+    <div class="form-group">
+        <label for="mapping_document_download_url">Mapping document download url</label>
+        <input type="text" name="mapping_document_download_url" class="form-control" id="mapping_document_download_url"
+               placeholder="Enter the url of the mapping document">
+    </div>
+
+    <div class="form-group">
+        <label for="distribution_download_url">Distribution Download URL</label>
+        <input type="text" name="distribution_download_url" class="form-control" id="distribution_download_url">
+    </div>
+
+
+    <input type="submit" class="btn btn-primary"/>
+
+</form>
 {% endblock %}
