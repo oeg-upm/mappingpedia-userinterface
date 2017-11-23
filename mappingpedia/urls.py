@@ -18,10 +18,10 @@ from django.contrib import admin
 import views
 
 urlpatterns = [
-    url(r'dataset', views.Dataset.as_view()),
-    url(r'mapping', views.Mapping.as_view()),
-    url(r'execute', views.Execute.as_view()),
-    url(r'webhook', views.webhook),
+    url('dataset', views.Dataset.as_view()),
+    url('mapping', views.Mapping.as_view()),
+    url('execute', views.Execute.as_view()),
+    url('webhook', views.webhook),
     url('', views.home),
 
 ]
