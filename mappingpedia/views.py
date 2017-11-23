@@ -3,6 +3,10 @@ from django.views import View
 import os
 import requests
 import json
+from django.views.decorators.csrf import csrf_exempt
+from subprocess import call
+from django.http import JsonResponse
+
 
 
 mappingpedia_engine_base_url = "http://mappingpedia-engine.linkeddata.es"
@@ -90,6 +94,10 @@ class Execute(View):
 
     def post(self, request):
         print "in execution"
+        if 'organization' not in request.POST or request.POST['organization'].strip() != '':
+            organization = request.POST['organization']
+        else:
+            organization = organization_id
         url = os.path.join(mappingpedia_engine_base_url, 'executions2')
         print url
         language = request.POST['language']
@@ -114,3 +122,17 @@ class Execute(View):
 
 def home(request):
     return render(request, 'home.html')
+
+
+@csrf_exempt
+def webhook(request):
+    from settings import BASE_DIR
+    try:
+        payload = json.loads(request.POST['payload'], strict=False)
+        comm = "cd %s; git pull" % BASE_DIR
+        print "git pull command: %s" % comm
+        call(comm, shell=True)
+        return JsonResponse({"status": "Ok"})
+    except Exception as e:
+        print "git_pull exception: " + str(e)
+        return JsonResponse({"error": str(e)})

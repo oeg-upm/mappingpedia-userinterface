@@ -4,6 +4,12 @@
 <br>
 <form method="POST"> {% csrf_token %}
 
+
+    <div class="form-group">
+        <label for="org">Organization Name</label>
+        <input type="text" name="organization" class="form-control" id="org" placeholder="Enter the organization name">
+    </div>
+
     <!--<div class="form-group">-->
         <!--<label for="dataset_select">Dataset</label>-->
         <!--<select name="dataset_id" class="form-control" id="dataset_select">-->
@@ -13,6 +19,7 @@
         <!--</select>-->
     <!--</div>-->
 
+
     <div class="form-group">
         <label for="dataset_id">Dataset</label>
         <input type="text" name="dataset_id" class="form-control" id="dataset_id"
@@ -21,15 +28,17 @@
 
 
     <div class="form-group">
+        <label for="distribution_download_url">Distribution Download URL</label>
+        <input type="text" name="distribution_download_url" class="form-control" id="distribution_download_url">
+    </div>
+
+    <div class="form-group">
         <label for="mapping_document_download_url">Mapping document download url</label>
         <input type="text" name="mapping_document_download_url" class="form-control" id="mapping_document_download_url"
                placeholder="Enter the url of the mapping document">
     </div>
 
-    <div class="form-group">
-        <label for="distribution_download_url">Distribution Download URL</label>
-        <input type="text" name="distribution_download_url" class="form-control" id="distribution_download_url">
-    </div>
+
 
     <select name="language" class="form-control" id="language">
             <option value="R2RML">R2RML</option>
