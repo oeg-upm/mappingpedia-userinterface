@@ -1,23 +1,73 @@
 {% extends "base.html" %}
 {% block body %}
+<script>
+    function set_distribution_source(source){
+        console.log('source: '+source);
+        if(source=='url'){
+            $("#distribution_url_div").show();
+            $("#distribution_url_radio").removeClass("btn-secondary");
+            $("#distribution_url_radio").addClass("btn-primary");
+
+            $("#distribution_file_div").hide();
+            $("#distribution_file_radio").removeClass("btn-primary");
+            $("#distribution_file_radio").addClass("btn-secondary");
+
+        }
+        else if(source=='file'){
+            $("#distribution_url_div").hide();
+            $("#distribution_url_radio").removeClass("btn-primary");
+            $("#distribution_url_radio").addClass("btn-secondary");
+
+            $("#distribution_file_div").show();
+            $("#distribution_file_radio").removeClass("btn-secondary");
+            $("#distribution_file_radio").addClass("btn-primary");
+
+        }
+    }
+
+$(document).ready(function(){
+    set_distribution_source('url');
+});
+
+</script>
 <br>
 <form method="POST" enctype="multipart/form-data"> {% csrf_token %}
 
+    <!--<div class="form-group">-->
+    <!--<label for="org">Organization Name</label>-->
+    <!--<input type="text" name="organization" class="form-control" id="org" placeholder="Enter the organization name">-->
+    <!--</div>-->
     <div class="form-group">
-        <label for="org">Organization Name</label>
-        <input type="text" name="organization" class="form-control" id="org" placeholder="Enter the organization name">
+        <label for="organization">Organization Name</label>
+        <select name="organization" class="form-control" id="organization">
+            {%for organization in organizations%}
+            <option value="{{organization}}">{{organization}}</option>
+            {%endfor%}
+        </select>
     </div>
 
-    <div class="form-group">
+    <div class="form-group" >
+        <div class="btn-group" role="group" aria-label="Basic example" data-toggle="buttons-radio">
+            <button type="button" class="btn btn-primary" id="distribution_url_radio" onclick="set_distribution_source('url')" >Distribution URL</button>
+            <button type="button" class="btn btn-secondary" id="distribution_file_radio" onclick="set_distribution_source('file')">Distribution File</button>
+        </div>
+    </div>
+
+
+    <div class="form-group" id="distribution_url_div">
         <label for="dist-url">Distribution URL</label>
-        <input type="text" name="url" class="form-control" id="dist-url" placeholder="Enter the distribution url">
+        <input type="text" name="url" class="form-control" id="dist-url"
+               placeholder="Enter the distribution url">
     </div>
 
-    <div class="form-group">
+    <div class="form-group" id="distribution_file_div" >
         <label for="dist-file">Distribution File</label>
-        <input type="file" name="file" class="form-control-file"  id="dist-file">
+        <input type="file" name="file" class="form-control-file" id="dist-file">
     </div>
+
     <input type="submit" class="btn btn-primary"/>
+    </div>
+    </div>
 </form>
 
 

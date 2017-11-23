@@ -8,17 +8,29 @@ from subprocess import call
 from django.http import JsonResponse
 
 
-
+ckan_base_url = 'http://83.212.100.226/ckan/api/'
 mappingpedia_engine_base_url = "http://mappingpedia-engine.linkeddata.es"
 #mappingpedia_engine_base_url = "http://localhost:8090"
 #mappingpedia_engine_base_url = "http://127.0.0.1:80/"
 organization_id = "zaragoza_test"
+#authorization = os.environ['authorization']
 
 
 class Dataset(View):
 
     def get(self, request):
-        return render(request, 'dataset_view.html', {'nav': 'dataset'})
+        url = os.path.join(ckan_base_url, 'action/organization_list')
+        response = requests.get(url)
+        organizations = []
+        if response.status_code == 200:
+            print "status_code is success"
+            json_response = json.loads(response.content)
+            if "success" in json_response and json_response["success"]:
+                print "success ckan"
+                organizations = json_response["result"]
+            else:
+                print "response: "+str(response.content)
+        return render(request, 'dataset_view.html', {'nav': 'dataset', 'organizations': organizations})
 
     def post(self, request):
         if 'organization' not in request.POST or request.POST['organization'].strip() != '':
@@ -136,3 +148,4 @@ def webhook(request):
     except Exception as e:
         print "git_pull exception: " + str(e)
         return JsonResponse({"error": str(e)})
+
