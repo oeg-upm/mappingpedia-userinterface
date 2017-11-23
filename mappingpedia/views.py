@@ -19,17 +19,7 @@ organization_id = "zaragoza_test"
 class Dataset(View):
 
     def get(self, request):
-        url = os.path.join(ckan_base_url, 'action/organization_list')
-        response = requests.get(url)
-        organizations = []
-        if response.status_code == 200:
-            print "status_code is success"
-            json_response = json.loads(response.content)
-            if "success" in json_response and json_response["success"]:
-                print "success ckan"
-                organizations = json_response["result"]
-            else:
-                print "response: "+str(response.content)
+        organizations = get_organizations()
         return render(request, 'dataset_view.html', {'nav': 'dataset', 'organizations': organizations})
 
     def post(self, request):
@@ -60,7 +50,10 @@ class Dataset(View):
 class Mapping(View):
 
     def get(self, request):
-        return render(request, 'mapping_view.html', {'nav': 'mapping'})
+        organizations = get_organizations()
+        datasets = get_datasets()
+        return render(request, 'mapping_view.html', {'datasets': datasets, 'nav': 'mapping',
+                                                     'organizations': organizations})
 
     def post(self, request):
         if 'organization' not in request.POST or request.POST['organization'].strip() != '':
@@ -96,13 +89,10 @@ class Mapping(View):
 class Execute(View):
 
     def get(self, request):
-        url = os.path.join(mappingpedia_engine_base_url, 'datasets')
-        response = requests.get(url)
-        if response.status_code == 200:
-            datasets = json.loads(response.content)['results']
-            return render(request, 'execute_view.html', {'datasets': datasets, 'nav': 'execute'})
-        else:
-            return render(request, 'msg.html', {'msg': 'error', 'nav': 'execute'})
+        organizations = get_organizations()
+        datasets = get_datasets()
+        return render(request, 'execute_view.html', {'datasets': datasets, 'nav': 'execute',
+                                                     'organizations': organizations})
 
     def post(self, request):
         print "in execution"
@@ -149,3 +139,28 @@ def webhook(request):
         print "git_pull exception: " + str(e)
         return JsonResponse({"error": str(e)})
 
+
+def get_organizations():
+    url = os.path.join(ckan_base_url, 'action/organization_list')
+    response = requests.get(url)
+    organizations = []
+    if response.status_code == 200:
+        print "status_code is success"
+        json_response = json.loads(response.content)
+        if "success" in json_response and json_response["success"]:
+            print "success ckan"
+            organizations = json_response["result"]
+        else:
+            print "response: " + str(response.content)
+    print 'organizations: '
+    print organizations
+    return organizations
+
+
+def get_datasets():
+    url = os.path.join(mappingpedia_engine_base_url, 'datasets')
+    response = requests.get(url)
+    datasets = []
+    if response.status_code == 200:
+        datasets = json.loads(response.content)['results']
+    return datasets

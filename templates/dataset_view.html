@@ -2,7 +2,6 @@
 {% block body %}
 <script>
     function set_distribution_source(source){
-        console.log('source: '+source);
         if(source=='url'){
             $("#distribution_url_div").show();
             $("#distribution_url_radio").removeClass("btn-secondary");
@@ -29,6 +28,7 @@ $(document).ready(function(){
     set_distribution_source('url');
 });
 
+
 </script>
 <br>
 <form method="POST" enctype="multipart/form-data"> {% csrf_token %}
@@ -46,10 +46,14 @@ $(document).ready(function(){
         </select>
     </div>
 
-    <div class="form-group" >
+    <div class="form-group">
         <div class="btn-group" role="group" aria-label="Basic example" data-toggle="buttons-radio">
-            <button type="button" class="btn btn-primary" id="distribution_url_radio" onclick="set_distribution_source('url')" >Distribution URL</button>
-            <button type="button" class="btn btn-secondary" id="distribution_file_radio" onclick="set_distribution_source('file')">Distribution File</button>
+            <button type="button" class="btn btn-primary" id="distribution_url_radio"
+                    onclick="set_distribution_source('url')">Distribution URL
+            </button>
+            <button type="button" class="btn btn-secondary" id="distribution_file_radio"
+                    onclick="set_distribution_source('file')">Distribution File
+            </button>
         </div>
     </div>
 
@@ -60,7 +64,7 @@ $(document).ready(function(){
                placeholder="Enter the distribution url">
     </div>
 
-    <div class="form-group" id="distribution_file_div" >
+    <div class="form-group" id="distribution_file_div">
         <label for="dist-file">Distribution File</label>
         <input type="file" name="file" class="form-control-file" id="dist-file">
     </div>

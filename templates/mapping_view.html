@@ -2,7 +2,6 @@
 {% block body %}
 <script>
     function set_distribution_source(source){
-        console.log('source: '+source);
         if(source=='url'){
             $("#mapping_url_div").show();
             $("#mapping_url_radio").removeClass("btn-secondary");
@@ -29,13 +28,23 @@ $(document).ready(function(){
     set_distribution_source('url');
 });
 
+
 </script>
 <br>
 <form method="POST" enctype="multipart/form-data"> {% csrf_token %}
 
+    <!--<div class="form-group">-->
+    <!--<label for="org">Organization Name</label>-->
+    <!--<input type="text" name="organization" class="form-control" id="org" placeholder="Enter the organization name">-->
+    <!--</div>-->
+
     <div class="form-group">
-        <label for="org">Organization Name</label>
-        <input type="text" name="organization" class="form-control" id="org" placeholder="Enter the organization name">
+        <label for="organization">Organization Name</label>
+        <select name="organization" class="form-control" id="organization">
+            {%for organization in organizations%}
+            <option value="{{organization}}">{{organization}}</option>
+            {%endfor%}
+        </select>
     </div>
 
     <div class="form-group">
@@ -43,16 +52,21 @@ $(document).ready(function(){
         <input type="text" name="dataset_id" class="form-control" id="dataset-id" placeholder="Enter the dataset ID">
     </div>
 
-    <div class="form-group" >
+    <div class="form-group">
         <div class="btn-group" role="group" aria-label="Basic example" data-toggle="buttons-radio">
-            <button type="button" class="btn btn-primary" id="mapping_url_radio" onclick="set_distribution_source('url')" >Mapping URL</button>
-            <button type="button" class="btn btn-secondary" id="mapping_file_radio" onclick="set_distribution_source('file')">Mapping File</button>
+            <button type="button" class="btn btn-primary" id="mapping_url_radio"
+                    onclick="set_distribution_source('url')">Mapping URL
+            </button>
+            <button type="button" class="btn btn-secondary" id="mapping_file_radio"
+                    onclick="set_distribution_source('file')">Mapping File
+            </button>
         </div>
     </div>
 
     <div class="form-group" id="mapping_url_div">
         <label for="mapping_file_url">Mapping Document Download URL</label>
-        <input type="url" name="mapping_file_url" class="form-control" id="mapping_file_url" placeholder="Enter the mapping file download url">
+        <input type="url" name="mapping_file_url" class="form-control" id="mapping_file_url"
+               placeholder="Enter the mapping file download url">
     </div>
 
     <div class="form-group" id="mapping_file_div">
