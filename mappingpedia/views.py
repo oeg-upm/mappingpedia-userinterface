@@ -40,6 +40,7 @@ class Dataset(View):
         else:
             return render(request, 'msg.html', {'msg': response.content})
 
+
 class Mapping(View):
 
     def get(self, request):
@@ -91,11 +92,13 @@ class Execute(View):
         print "in execution"
         url = os.path.join(mappingpedia_engine_base_url, 'executions2')
         print url
+        language = request.POST['language']
         data = {
             "mapping_document_download_url": request.POST['mapping_document_download_url'],
             "organizationId":  organization_id,
             "datasetId": request.POST['dataset_id'],
-            "distribution_download_url": request.POST['distribution_download_url']
+            "distribution_download_url": request.POST['distribution_download_url'],
+            "mappingLanguage": language,
         }
         print "data: "
         print data

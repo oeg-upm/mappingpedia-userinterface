@@ -4,14 +4,21 @@
 <br>
 <form method="POST"> {% csrf_token %}
 
+    <!--<div class="form-group">-->
+        <!--<label for="dataset_select">Dataset</label>-->
+        <!--<select name="dataset_id" class="form-control" id="dataset_select">-->
+            <!--{%for dataset in datasets%}-->
+            <!--<option value="{{dataset.id}}">{{dataset.id}}</option>-->
+            <!--{%endfor%}-->
+        <!--</select>-->
+    <!--</div>-->
+
     <div class="form-group">
-        <label for="dataset_select">Dataset</label>
-        <select name="dataset_id" class="form-control" id="dataset_select">
-            {%for dataset in datasets%}
-            <option value="{{dataset.id}}">{{dataset.id}}</option>
-            {%endfor%}
-        </select>
+        <label for="dataset_id">Dataset</label>
+        <input type="text" name="dataset_id" class="form-control" id="dataset_id"
+               placeholder="Enter the id of the dataset">
     </div>
+
 
     <div class="form-group">
         <label for="mapping_document_download_url">Mapping document download url</label>
@@ -24,6 +31,10 @@
         <input type="text" name="distribution_download_url" class="form-control" id="distribution_download_url">
     </div>
 
+    <select name="language" class="form-control" id="language">
+            <option value="R2RML">R2RML</option>
+            <option value="RML">RML</option>
+        </select>
 
     <input type="submit" class="btn btn-primary"/>
 
