@@ -164,3 +164,7 @@ def get_datasets():
     if response.status_code == 200:
         datasets = json.loads(response.content)['results']
     return datasets
+
+
+def autocomplete(request):
+    return render(request, 'autocomplete.html')

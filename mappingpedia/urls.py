@@ -22,6 +22,7 @@ urlpatterns = [
     url('mapping', views.Mapping.as_view()),
     url('execute', views.Execute.as_view()),
     url('webhook', views.webhook),
+    url('autocomplete', views.autocomplete),
     url('', views.home),
 
 ]
