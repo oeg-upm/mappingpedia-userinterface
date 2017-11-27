@@ -52,7 +52,7 @@ class Mapping(View):
 
     def get(self, request):
         organizations = get_organizations()
-        datasets = get_datasets()
+        datasets = []#get_datasets()
         return render(request, 'mapping_view.html', {'datasets': datasets, 'nav': 'mapping',
                                                      'organizations': organizations})
 
@@ -91,7 +91,7 @@ class Execute(View):
 
     def get(self, request):
         organizations = get_organizations()
-        datasets = get_datasets()
+        datasets = []#get_datasets()
         return render(request, 'execute_view.html', {'datasets': datasets, 'nav': 'execute',
                                                      'organizations': organizations})
 
@@ -158,13 +158,46 @@ def get_organizations():
     return organizations
 
 
-def get_datasets():
-    url = os.path.join(mappingpedia_engine_base_url, 'datasets')
+# def get_datasets():
+#     url = os.path.join(mappingpedia_engine_base_url, 'datasets')
+#     response = requests.get(url)
+#     datasets = []
+#     if response.status_code == 200:
+#         datasets = json.loads(response.content)['results']
+#     return datasets
+
+def get_datasets(request):
+    if 'organization' in request.GET:
+        organization =  request.GET['organization']
+        datasets = get_datasets_for_organization(organization)
+        print 'datasets: '
+        print datasets
+        return JsonResponse({'datasets': datasets})
+        #return get_datasets_for_organization(organization)
+    else:
+        #return render(request, 'msg.html', {'error': 'organization is not passed'})
+        return JsonResponse({'error': 'organization is not passed'})
+
+
+def get_datasets_for_organization(organization):
+    url = os.path.join(ckan_base_url, 'action','organization_show')
+    url += '?id=%s&include_datasets=true' % organization.strip()
     response = requests.get(url)
-    datasets = []
+    print 'get url: '
+    print url
     if response.status_code == 200:
-        datasets = json.loads(response.content)['results']
-    return datasets
+        print 'status code is success'
+        json_response = json.loads(response.content)
+        if "success" in json_response and json_response["success"]:
+            print "success ckan"
+            datasets_elements = json_response["result"]['packages']
+            datasets = [d['title'] for d in datasets_elements]
+            return datasets
+        else:
+            print "response: " + str(response.content)
+    else:
+        print 'status code is wrong'
+    return []
 
 
 def autocomplete(request):

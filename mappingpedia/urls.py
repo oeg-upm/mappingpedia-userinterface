@@ -18,6 +18,7 @@ from django.contrib import admin
 import views
 
 urlpatterns = [
+    url(r'get_datasets', views.get_datasets),
     url(r'generate_mappings', views.generate_mappings),
     url(r'dataset', views.Dataset.as_view()),
     url(r'mapping', views.Mapping.as_view()),
