@@ -6,7 +6,8 @@ import json
 from django.views.decorators.csrf import csrf_exempt
 from subprocess import call
 from django.http import JsonResponse
-
+import random
+import string
 
 ckan_base_url = 'http://83.212.100.226/ckan/api/'
 mappingpedia_engine_base_url = "http://mappingpedia-engine.linkeddata.es"
@@ -168,3 +169,81 @@ def get_datasets():
 
 def autocomplete(request):
     return render(request, 'autocomplete.html')
+
+
+def editor(request):
+    f = open('/Users/aalobaid/temp/mappingpedia/edificio-historico.csv')
+    line = f.readline()
+    headers = line.split(',')
+    return render(request, 'editor.html', {'headers': headers, 'file_name': 'edificio-historico'})
+
+
+def get_properties(request):
+    if 'concept' in request.GET:
+        concept = request.GET['concept'].strip()
+        f = open('utils/schema-prop.json')
+        properties_j = json.loads(f.read())
+        if concept in properties_j:
+            properties = list(set(properties_j[concept]))
+            return JsonResponse({'properties': properties})
+    return JsonResponse({'properties': []})
+
+
+def generate_mappings(request):
+    print request.POST
+    mappings = []
+    if 'file_name' not in request.POST:
+        return JsonResponse({'error': 'file_name is not passed'})
+    if 'entity_class'  not in request.POST:
+        return JsonResponse({'error': 'entity_class is not passed'})
+    if 'entity_column' not in request.POST:
+        return JsonResponse({'error': 'entity_column is not passed'})
+
+    for i in range(len(request.POST)):
+        key = 'form_key_'+str(i)
+        val = 'form_val_'+str(i)
+        if key in request.POST and val in request.POST:
+            if request.POST[val].strip() != '':
+                element = {"key": request.POST[key], "val": request.POST[val]}
+                mappings.append(element)
+        else:
+            break
+
+    mapping_id = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(10))
+    file_name = request.POST['file_name']
+    entity_class = request.POST['entity_class']
+    entity_column = request.POST['entity_column']
+    property_column_mapping = ""
+    single_property_mapping = """
+        rr:predicateObjectMap [
+          rr:predicateMap [ rr:constant schema:%s ];
+          rr:objectMap    [ rr:termType rr:Literal; rr:column "\\"%s\\""; ];
+        ];
+    """
+
+    proper_mappings_list = [single_property_mapping % (m["val"].replace('http://schema.org/',''), m["key"].upper()) for m in mappings]
+    property_column_mapping = "\n".join(proper_mappings_list)
+    mapping_file = """
+    @prefix rr: <http://www.w3.org/ns/r2rml#> .
+    @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+    @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+    @prefix dcat: <http://www.w3.org/ns/dcat#> .
+    @prefix dct: <http://purl.org/dc/terms/> .
+    @prefix mpv: <http://mappingpedia.linkeddata.es/vocab/> .
+    @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+    @prefix schema: <http://schema.org/> .
+    @base <http://mappingpedia.linkeddata.es/resource/> .
+    <%s>
+        rr:logicalTable [
+            rr:tableName  "\\"%s\\""
+        ];
+
+        rr:subjectMap [
+            a rr:Subject; rr:termType rr:IRI; rr:class schema:%s;
+            rr:column "\\"%s\\"";
+        ];
+        %s
+    .
+    """ % (mapping_id, file_name, entity_class, entity_column.upper(), property_column_mapping)
+    print mapping_file
+    return JsonResponse({'status': 'Ok'})

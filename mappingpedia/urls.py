@@ -18,11 +18,14 @@ from django.contrib import admin
 import views
 
 urlpatterns = [
-    url('dataset', views.Dataset.as_view()),
-    url('mapping', views.Mapping.as_view()),
-    url('execute', views.Execute.as_view()),
-    url('webhook', views.webhook),
-    url('autocomplete', views.autocomplete),
+    url(r'generate_mappings', views.generate_mappings),
+    url(r'dataset', views.Dataset.as_view()),
+    url(r'mapping', views.Mapping.as_view()),
+    url(r'execute', views.Execute.as_view()),
+    url(r'webhook', views.webhook),
+    url(r'autocomplete', views.autocomplete),
+    url(r'editor', views.editor),
+    url(r'get_properties', views.get_properties),
     url('', views.home),
 
 ]
