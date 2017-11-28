@@ -81,8 +81,8 @@ $(document).ready(function(){
     $("#organization").change();
 
     $("#go-to-editor-button").click(function(){
-        if($("#dataset_select").val()){
-            window.location.href = 'editor?dataset='+$("#dataset_select").val();
+        if($("#dataset_select").val() && $("#distribution").val()){
+            window.location.href = 'editor?dataset='+$("#dataset_select").val()+'&distribution='+$("#distribution").val()+'&download_url=';
         }
         else{
             alert('Dataset cannot be empty');
@@ -195,8 +195,6 @@ $(document).ready(function(){
     </div>
 
     <div class="form-group" id="mapping_create_div">
-
-
         <label for="distribution">Distribution (File)</label>
         <select name="distribution" class="form-control" id="distribution">
         </select>
