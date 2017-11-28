@@ -19,6 +19,7 @@ import views
 
 urlpatterns = [
     url(r'get_datasets', views.get_datasets),
+    url(r'get_distributions', views.get_distributions),
     url(r'generate_mappings', views.generate_mappings),
     url(r'dataset', views.Dataset.as_view()),
     url(r'mapping', views.Mapping.as_view()),

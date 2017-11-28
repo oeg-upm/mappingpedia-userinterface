@@ -48,6 +48,12 @@
             $("#mapping_create_radio").addClass("btn-primary");
 
             $("#submit-button").hide();
+
+
+
+
+
+
         }
 
     }
@@ -68,6 +74,7 @@ $(document).ready(function(){
                 options_html += single_option;
             }//for
              $("#dataset_select").html(options_html);
+             $("#dataset_select").change();
         });//getJSON
     });//change
 
@@ -81,6 +88,41 @@ $(document).ready(function(){
             alert('Dataset cannot be empty');
         }
     });
+
+
+    $("#dataset_select").change(function() {
+        console.log('dataset select value is changed to: '+$("#dataset_select").val());
+        var dataset = $("#dataset_select").val();
+            $.getJSON("get_distributions?dataset="+dataset, function(data){
+                if("error" in data){
+                    alert("error getting data");
+                }
+                else{
+                    var single_option;
+                    var i;
+                    var distributions = data["distributions"];
+                    var select_html='';
+                    for(i=0;i<distributions.length;i++){
+                        console.log(distributions[i]);
+                        if(distributions[i]["name"] == null || distributions[i]["name"].trim()==""){
+                            single_option = '<option value="'+distributions[i]["id"]+'">'+distributions[i]["id"]+'</option>\n';
+                        }
+                        else{
+                            single_option = '<option value="'+distributions[i]["id"]+'">'+distributions[i]["name"]+'</option>\n';
+                        }
+                        select_html += single_option;
+                    }
+                    $("#distribution").html(select_html);
+                }
+            });
+    });//change
+
+
+
+
+
+
+
 
 });//ready
 
@@ -153,7 +195,11 @@ $(document).ready(function(){
     </div>
 
     <div class="form-group" id="mapping_create_div">
-        <p id="create-mapping-error" style="color: red"></p>
+
+
+        <label for="distribution">Distribution (File)</label>
+        <select name="distribution" class="form-control" id="distribution">
+        </select>
         <p>You can create a mapping using our online editor</p>
         <div class="btn btn-primary" id="go-to-editor-button">Go to editor</div>
     </div>

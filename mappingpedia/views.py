@@ -203,6 +203,31 @@ def get_datasets_for_organization(organization):
     return []
 
 
+def get_distributions(request):
+    if 'dataset' in request.GET:
+        distributions = get_distributions_for_dataset(request.GET['dataset'])
+        originals = [ d for d in distributions if d['format'].upper() in ['XML', 'JSON', 'CSV']]
+        return JsonResponse({'distributions': originals})
+    else:
+        return JsonResponse({'error': 'dataset is not passed'})
+
+
+def get_distributions_for_dataset(dataset_id):
+    url = os.path.join(ckan_base_url, 'action', 'package_show?id='+dataset_id)
+    response = requests.get(url)
+    if response.status_code == 200:
+        print 'status code is success'
+        json_response = json.loads(response.content)
+        if "success" in json_response and json_response["success"]:
+            distributions = json_response['result']['resources']
+            return distributions
+        else:
+            print "not success"
+    else:
+        print "not a success status code"
+    return []
+
+
 def autocomplete(request):
     return render(request, 'autocomplete.html')
 
