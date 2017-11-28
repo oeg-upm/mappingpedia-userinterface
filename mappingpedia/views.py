@@ -167,8 +167,10 @@ def get_organizations():
 #     return datasets
 
 def get_datasets(request):
+    print 'get_datasets'
     if 'organization' in request.GET:
-        organization =  request.GET['organization']
+        organization =  request.GET['organization'].strip()
+        print 'organization %s' % organization
         datasets = get_datasets_for_organization(organization)
         print 'datasets: '
         print datasets
@@ -176,6 +178,7 @@ def get_datasets(request):
         #return get_datasets_for_organization(organization)
     else:
         #return render(request, 'msg.html', {'error': 'organization is not passed'})
+        print 'not in organization'
         return JsonResponse({'error': 'organization is not passed'})
 
 

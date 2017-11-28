@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block body %}
 <script>
+    var datasets = []
     function set_distribution_source(source){
         if(source=='url'){
             $("#mapping_url_div").show();
@@ -10,6 +11,12 @@
             $("#mapping_file_div").hide();
             $("#mapping_file_radio").removeClass("btn-primary");
             $("#mapping_file_radio").addClass("btn-secondary");
+
+            $("#mapping_create_div").hide();
+            $("#mapping_create_radio").removeClass("btn-primary");
+            $("#mapping_create_radio").addClass("btn-secondary");
+
+            $("#submit-button").show();
 
         }
         else if(source=='file'){
@@ -21,12 +28,65 @@
             $("#mapping_file_radio").removeClass("btn-secondary");
             $("#mapping_file_radio").addClass("btn-primary");
 
+            $("#mapping_create_div").hide();
+            $("#mapping_create_radio").removeClass("btn-primary");
+            $("#mapping_create_radio").addClass("btn-secondary");
+
+            $("#submit-button").show();
         }
+        else if(source=='create'){
+            $("#mapping_url_div").hide();
+            $("#mapping_url_radio").removeClass("btn-primary");
+            $("#mapping_url_radio").addClass("btn-secondary");
+
+            $("#mapping_file_div").hide();
+            $("#mapping_file_radio").removeClass("btn-primary");
+            $("#mapping_file_radio").addClass("btn-secondary");
+
+            $("#mapping_create_div").show();
+            $("#mapping_create_radio").removeClass("btn-secondary");
+            $("#mapping_create_radio").addClass("btn-primary");
+
+            $("#submit-button").hide();
+        }
+
     }
 
 $(document).ready(function(){
     set_distribution_source('url');
-});
+
+    $("#organization").change(function() {
+        console.log('dataset select value is changed to: '+$("#organization").val());
+        $.getJSON("get_datasets?organization="+$("#organization").val(), function(data){
+            datasets = data["datasets"]
+            $("#num-of-datasets").html(' ('+datasets.length+')');
+            var options_html = '';
+            var i
+            var single_option;
+            for(i=0;i<datasets.length;i++){
+                single_option = '<option value="'+datasets[i]+'">'+datasets[i]+'</option>\n';
+                options_html += single_option;
+            }//for
+             $("#dataset_select").html(options_html);
+        });//getJSON
+    });//change
+
+    $("#organization").change();
+
+    $("#go-to-editor-button").click(function(){
+        if($("#dataset_select").val()){
+            window.location.href = 'editor?dataset='+$("#dataset_select").val();
+        }
+        else{
+            alert('Dataset cannot be empty');
+        }
+    });
+
+});//ready
+
+
+
+
 
 
 </script>
@@ -39,7 +99,7 @@ $(document).ready(function(){
     <!--</div>-->
 
     <div class="form-group">
-        <label for="organization">Organization Name</label>
+        <label for="organization">Organization</label>
         <select name="organization" class="form-control" id="organization">
             {%for organization in organizations%}
             <option value="{{organization}}">{{organization}}</option>
@@ -51,7 +111,7 @@ $(document).ready(function(){
 
 
         <div class="form-group">
-    <label for="dataset_select">Dataset</label>
+            <label for="dataset_select">Dataset</label><span id="num-of-datasets"></span>
     <select name="dataset_id" class="form-control" id="dataset_select">
     {%for dataset in datasets%}
     <option value="{{dataset.id}}">{{dataset.id}}</option>
@@ -62,10 +122,10 @@ $(document).ready(function(){
 
 
 
-    <div class="form-group">
-        <label for="dataset-id">Dataset ID</label>
-        <input type="text" name="dataset_id" class="form-control" id="dataset-id" placeholder="Enter the dataset ID">
-    </div>
+    <!--<div class="form-group">-->
+        <!--<label for="dataset-id">Dataset ID</label>-->
+        <!--<input type="text" name="dataset_id" class="form-control" id="dataset-id" placeholder="Enter the dataset ID">-->
+    <!--</div>-->
 
     <div class="form-group">
         <div class="btn-group" role="group" aria-label="Basic example" data-toggle="buttons-radio">
@@ -74,6 +134,9 @@ $(document).ready(function(){
             </button>
             <button type="button" class="btn btn-secondary" id="mapping_file_radio"
                     onclick="set_distribution_source('file')">Mapping File
+            </button>
+            <button type="button" class="btn btn-secondary" id="mapping_create_radio"
+                    onclick="set_distribution_source('create')">Create Mapping
             </button>
         </div>
     </div>
@@ -89,7 +152,13 @@ $(document).ready(function(){
         <input type="file" name="mapping_file" class="form-control-file" id="mapping_file">
     </div>
 
-    <input type="submit" class="btn btn-primary"/>
+    <div class="form-group" id="mapping_create_div">
+        <p id="create-mapping-error" style="color: red"></p>
+        <p>You can create a mapping using our online editor</p>
+        <div class="btn btn-primary" id="go-to-editor-button">Go to editor</div>
+    </div>
+
+    <input type="submit" class="btn btn-primary" id="submit-button"/>
 
 
 </form>
