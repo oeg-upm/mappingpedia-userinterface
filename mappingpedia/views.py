@@ -14,7 +14,6 @@ mappingpedia_engine_base_url = "http://mappingpedia-engine.linkeddata.es"
 #mappingpedia_engine_base_url = "http://localhost:8090"
 #mappingpedia_engine_base_url = "http://127.0.0.1:80/"
 organization_id = "zaragoza_test"
-#authorization = os.environ['authorization']
 
 
 class Dataset(View):
@@ -158,26 +157,16 @@ def get_organizations():
     return organizations
 
 
-# def get_datasets():
-#     url = os.path.join(mappingpedia_engine_base_url, 'datasets')
-#     response = requests.get(url)
-#     datasets = []
-#     if response.status_code == 200:
-#         datasets = json.loads(response.content)['results']
-#     return datasets
-
 def get_datasets(request):
     print 'get_datasets'
     if 'organization' in request.GET:
         organization =  request.GET['organization'].strip()
         print 'organization %s' % organization
         datasets = get_datasets_for_organization(organization, only_contains_distributions=False)
-        print 'datasets: '
-        print datasets
+        #print 'datasets: '
+        #print datasets
         return JsonResponse({'datasets': datasets})
-        #return get_datasets_for_organization(organization)
     else:
-        #return render(request, 'msg.html', {'error': 'organization is not passed'})
         print 'not in organization'
         return JsonResponse({'error': 'organization is not passed'})
 
@@ -233,15 +222,28 @@ def get_distributions_for_dataset(dataset_id, only_original=False):
     return []
 
 
+def get_mappings(request):
+    if 'distribution' in request.GET:
+        distribution = request.GET['distribution']
+        mappings = get_mappings_for_distribution(distribution)
+        return JsonResponse({'mappings': mappings})
+    return JsonResponse({'error': 'distribution is not passed'})
+
+
+def get_mappings_for_distribution(distribution):
+    url = os.path.join(mappingpedia_engine_base_url, 'mappings?datasetId='+distribution.strip())
+    response = requests.get(url)
+    if response.status_code == 200:
+        json_response = json.loads(response.content)
+        mappings = json_response['results']
+    else:
+        print 'get mapping status code error'
+        mappings = []
+    return mappings
+
+
 def autocomplete(request):
     return render(request, 'autocomplete.html')
-
-
-# def editor(request):
-#     f = open('/Users/aalobaid/temp/mappingpedia/edificio-historico.csv')
-#     line = f.readline()
-#     headers = line.split(',')
-#     return render(request, 'editor.html', {'headers': headers, 'file_name': 'edificio-historico'})
 
 
 def editor_csv(request, download_url, file_name, dataset):
@@ -278,13 +280,6 @@ def editor(request):
                     return editor_csv(request, download_url, file_name_no_ext, dataset)
                 else:
                     return render(request, 'msg.html', {'msg': 'format: '+json_response['result']['format'].upper()})
-                # response = requests.get(download_url)
-                # if response.status_code == 200:
-                #     line = response.content.split('\n')[0]
-                #     headers = line.split(',')
-                #     return render(request, 'editor.html', {'headers': headers, 'file_name': file_name_no_ext})
-                # else:
-                #     return render(request, 'msg.html', {'error': 'can not download file: '+download_url})
             else:
                 print ' not a success in the ckan reply'
                 return render(request, 'msg.html', {'msg': 'ckan API does not return success'})
@@ -308,7 +303,6 @@ def get_properties(request):
 def generate_r2rml_mappings(file_name, entity_class, entity_column, mappings):
     from settings import BASE_DIR
     mapping_id = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(10))
-    property_column_mapping = ""
     single_property_mapping = """
         rr:predicateObjectMap [
           rr:predicateMap [ rr:constant schema:%s ];
@@ -396,41 +390,4 @@ def generate_mappings(request):
         else:
             return render(request, 'msg.html', {'msg': 'error: ' + response.content})
 
-    # mapping_id = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(10))
-    # file_name = request.POST['file_name']
-    # entity_class = request.POST['entity_class']
-    # entity_column = request.POST['entity_column']
-    # property_column_mapping = ""
-    # single_property_mapping = """
-    #     rr:predicateObjectMap [
-    #       rr:predicateMap [ rr:constant schema:%s ];
-    #       rr:objectMap    [ rr:termType rr:Literal; rr:column "\\"%s\\""; ];
-    #     ];
-    # """
-    #
-    # proper_mappings_list = [single_property_mapping % (m["val"].replace('http://schema.org/',''), m["key"].upper()) for m in mappings]
-    # property_column_mapping = "\n".join(proper_mappings_list)
-    # mapping_file = """
-    # @prefix rr: <http://www.w3.org/ns/r2rml#> .
-    # @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
-    # @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-    # @prefix dcat: <http://www.w3.org/ns/dcat#> .
-    # @prefix dct: <http://purl.org/dc/terms/> .
-    # @prefix mpv: <http://mappingpedia.linkeddata.es/vocab/> .
-    # @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
-    # @prefix schema: <http://schema.org/> .
-    # @base <http://mappingpedia.linkeddata.es/resource/> .
-    # <%s>
-    #     rr:logicalTable [
-    #         rr:tableName  "\\"%s\\""
-    #     ];
-    #
-    #     rr:subjectMap [
-    #         a rr:Subject; rr:termType rr:IRI; rr:class schema:%s;
-    #         rr:column "\\"%s\\"";
-    #     ];
-    #     %s
-    # .
-    # """ % (mapping_id, file_name, entity_class, entity_column.upper(), property_column_mapping)
-    # print mapping_file
     return JsonResponse({'status': 'Ok'})

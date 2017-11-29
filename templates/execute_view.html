@@ -1,6 +1,95 @@
 {% extends "base.html" %}
 {% block body %}
 
+
+<script>
+$(document).ready(function(){
+
+    $("#organization").change(function() {
+        console.log('organization select value is changed to: '+$("#organization").val());
+        $.getJSON("get_datasets?organization="+$("#organization").val(), function(data){
+            datasets = data["datasets"]
+            $("#num-of-datasets").html(' ('+datasets.length+')');
+            var options_html = '';
+            var i
+            var single_option;
+            for(i=0;i<datasets.length;i++){
+                single_option = '<option value="'+datasets[i]+'">'+datasets[i]+'</option>\n';
+                options_html += single_option;
+            }//for
+             $("#dataset_select").html(options_html);
+             $("#dataset_select").change();
+        });//getJSON
+    });//change
+
+    $("#organization").change();
+
+
+    $("#dataset_select").change(function() {
+        console.log('dataset select value is changed to: '+$("#dataset_select").val());
+        if($("#dataset_select").val() != null){
+        var dataset = $("#dataset_select").val();
+            $.getJSON("get_distributions?dataset="+dataset, function(data){
+                if("error" in data){
+                    alert("error getting distributions data "+data["error"]);
+                }
+                else{
+                    var single_option;
+                    var i;
+                    var distributions = data["distributions"];
+                    $("#num-of-distributions").html(' ('+distributions.length+')');
+                    var select_html='';
+                    for(i=0;i<distributions.length;i++){
+                        console.log(distributions[i]);
+                        if(distributions[i]["name"] == null || distributions[i]["name"].trim()==""){
+                            single_option = '<option value="'+distributions[i]["id"]+'">'+distributions[i]["id"]+'</option>\n';
+                        }
+                        else{
+                            single_option = '<option value="'+distributions[i]["id"]+'">'+distributions[i]["name"]+'</option>\n';
+                        }
+                        select_html += single_option;
+                    }//for
+                    $("#distribution").html(select_html);
+                    $("#distribution").change();
+                }
+            });
+        }
+    });//change
+
+
+     $("#distribution").change(function() {
+        console.log('distribution select value is changed to: '+$("#distribution").val());
+        var distribution = $("#distribution").val();
+        if(distribution != null){
+            $.getJSON("get_mappings?distribution="+distribution, function(data){
+                if("error" in data){
+                    alert("error getting mappings data"+data["error"]);
+                }
+                else{
+                    var single_option;
+                    var i;
+                    var mappings = data["mappings"];
+                    $("#num-of-mappings").html(' ('+mappings.length+')');
+                    var select_html='';
+                    for(i=0;i<mappings.length;i++){
+                        console.log(mappings[i]);
+                        if(mappings[i]["title"] == null || distributions[i]["title"].trim()==""){
+                            single_option = '<option value="'+distributions[i]["id"]+'">'+distributions[i]["id"]+'</option>\n';
+                        }
+                        else{
+                            single_option = '<option value="'+distributions[i]["id"]+'">'+distributions[i]["title"]+'</option>\n';
+                        }
+                        select_html += single_option;
+                    }
+                    $("#mapping").html(select_html);
+                }
+            });
+        }//if not null
+    });//change
+
+});//ready
+</script>
+
 <br>
 <form method="POST"> {% csrf_token %}
 
@@ -20,40 +109,24 @@
         </select>
     </div>
 
-    <!--<div class="form-group">-->
-    <!--<label for="dataset_select">Dataset</label>-->
-    <!--<select name="dataset_id" class="form-control" id="dataset_select">-->
-    <!--{%for dataset in datasets%}-->
-    <!--<option value="{{dataset.id}}">{{dataset.id}}</option>-->
-    <!--{%endfor%}-->
-    <!--</select>-->
-    <!--</div>-->
-
     <div class="form-group">
-        <label for="dataset_id">Dataset</label>
-        <input type="text" name="dataset_id" class="form-control" id="dataset_id"
-               placeholder="Enter the id of the dataset">
-    </div>
-
-
-    <div class="form-group">
-        <label for="distribution_download_url">Distribution Download URL</label>
-        <input type="text" name="distribution_download_url" class="form-control" id="distribution_download_url"
-               placeholder="Enter the url of the distribution">
+        <label for="dataset_select">Dataset</label><span id="num-of-datasets"></span>
+        <select name="dataset_id" class="form-control" id="dataset_select">
+            {%for dataset in datasets%}
+            <option value="{{dataset.id}}">{{dataset.id}}</option>
+            {%endfor%}
+        </select>
     </div>
 
     <div class="form-group">
-        <label for="mapping_document_download_url">Mapping document download url</label>
-        <input type="text" name="mapping_document_download_url" class="form-control" id="mapping_document_download_url"
-               placeholder="Enter the url of the mapping document">
+        <label for="distribution">Distribution (File)</label><span id="num-of-distributions"></span>
+        <select name="distribution" class="form-control" id="distribution">
+        </select>
     </div>
 
-
     <div class="form-group">
-        <label for="language">Mapping Language</label>
-        <select name="language" class="form-control" id="language">
-            <option value="R2RML">R2RML</option>
-            <option value="RML">RML</option>
+        <label for="mapping">Mapping (File)</label><span id="num-of-mappings"></span>
+        <select name="mapping" class="form-control" id="mapping">
         </select>
     </div>
 
