@@ -28,7 +28,7 @@ $(document).ready(function(){
     $("#dataset_select").change(function() {
         console.log('dataset select value is changed to: '+$("#dataset_select").val());
         if($("#dataset_select").val() != null){
-        var dataset = $("#dataset_select").val();
+            var dataset = $("#dataset_select").val();
             $.getJSON("get_distributions?dataset="+dataset, function(data){
                 if("error" in data){
                     alert("error getting distributions data "+data["error"]);
@@ -50,22 +50,16 @@ $(document).ready(function(){
                         select_html += single_option;
                     }//for
                     $("#distribution").html(select_html);
-                    $("#distribution").change();
                 }
-            });
-        }
-    });//change
-
-
-     $("#distribution").change(function() {
-        console.log('distribution select value is changed to: '+$("#distribution").val());
-        var distribution = $("#distribution").val();
-        if(distribution != null){
-            $.getJSON("get_mappings?distribution="+distribution, function(data){
+            });//getJSON
+            $.getJSON("get_mappings?dataset="+dataset, function(data){
+                console.log('get_mappings: ');
                 if("error" in data){
-                    alert("error getting mappings data"+data["error"]);
+                    alert("error getting mappings data "+data["error"]);
                 }
                 else{
+                    console.log('mappings results: ');
+                    console.log(data);
                     var single_option;
                     var i;
                     var mappings = data["mappings"];
@@ -73,18 +67,19 @@ $(document).ready(function(){
                     var select_html='';
                     for(i=0;i<mappings.length;i++){
                         console.log(mappings[i]);
-                        if(mappings[i]["title"] == null || distributions[i]["title"].trim()==""){
-                            single_option = '<option value="'+distributions[i]["id"]+'">'+distributions[i]["id"]+'</option>\n';
+                        if(mappings[i]["name"] == null || mappings[i]["mappingDocumentTitle"].trim()==""){
+                            single_option = '<option value="'+mappings[i]["id"]+'">'+mappings[i]["id"]+'</option>\n';
                         }
                         else{
-                            single_option = '<option value="'+distributions[i]["id"]+'">'+distributions[i]["title"]+'</option>\n';
+                            single_option = '<option value="'+mappings[i]["id"]+'">'+mappings[i]["mappingDocumentTitle"]+'</option>\n';
                         }
                         select_html += single_option;
-                    }
+                    }//for
                     $("#mapping").html(select_html);
+                    $("#mapping").change();
                 }
-            });
-        }//if not null
+            });//getJSON
+        }//if
     });//change
 
 });//ready
@@ -111,7 +106,7 @@ $(document).ready(function(){
 
     <div class="form-group">
         <label for="dataset_select">Dataset</label><span id="num-of-datasets"></span>
-        <select name="dataset_id" class="form-control" id="dataset_select">
+        <select name="dataset" class="form-control" id="dataset_select">
             {%for dataset in datasets%}
             <option value="{{dataset.id}}">{{dataset.id}}</option>
             {%endfor%}
@@ -129,6 +124,9 @@ $(document).ready(function(){
         <select name="mapping" class="form-control" id="mapping">
         </select>
     </div>
+
+    <input type="hidden" name="language" id="language" value="not specified">
+
 
     <input type="submit" class="btn btn-primary"/>
 

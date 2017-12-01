@@ -33,6 +33,8 @@ class Dataset(View):
             data = {
                 "distribution_download_url": distribution_download_url,
             }
+            if 'name' in request.POST and request.POST['name'].strip() != '':
+                data['datasetTitle'] = request.POST['name']
             response = requests.post(url, data)
         elif 'file' in request.FILES:
             distribution_file = request.FILES['file']
@@ -96,19 +98,34 @@ class Execute(View):
 
     def post(self, request):
         print "in execution"
-        if 'organization' not in request.POST or request.POST['organization'].strip() != '':
-            organization = request.POST['organization']
+        if 'organization' not in request.POST:
+            return render(request, 'msg.html', {'msg': 'error: organization is not passed'})
+        if 'dataset' not in request.POST:
+            return render(request, 'msg.html', {'msg': 'error: dataset is not passed'})
+        if 'distribution' not in request.POST:
+            return render(request, 'msg.html', {'msg': 'error: distribution is not passed'})
+        if 'mapping' not in request.POST:
+            return render(request, 'msg.html', {'msg': 'error: mapping is not passed'})
+        organization_id = request.POST['organization']
+        dataset_id = request.POST['dataset']
+        distribution_id = request.POST['distribution']
+        mapping_id = request.POST['mapping']
+        distribution = get_distribution(distribution_id)
+        if distribution is None:
+            return render(request, 'msg.html', {'msg': 'error: getting distribution information from CKAN'})
+        if distribution['format'].lower().strip() in ['json', 'xml']:
+            language = 'rml'
         else:
-            organization = organization_id
+            language = 'r2rml'
         url = os.path.join(mappingpedia_engine_base_url, 'executions2')
         print url
-        language = request.POST['language']
         data = {
-            "mapping_document_download_url": request.POST['mapping_document_download_url'],
-            "organizationId":  organization_id,
-            "datasetId": request.POST['dataset_id'],
-            "distribution_download_url": request.POST['distribution_download_url'],
-            "mappingLanguage": language,
+            # "mapping_document_download_url": request.POST['mapping_document_download_url'],
+            "mapping_document_id": mapping_id,
+            "organization_id":  organization_id,
+            "dataset_id": dataset_id,
+            "distribution_download_url": distribution['url'],
+            "mapping_language": language,
         }
         print "data: "
         print data
@@ -223,16 +240,16 @@ def get_distributions_for_dataset(dataset_id, only_original=False):
 
 
 def get_mappings(request):
-    if 'distribution' in request.GET:
-        distribution = request.GET['distribution']
-        mappings = get_mappings_for_distribution(distribution)
+    if 'dataset' in request.GET:
+        dataset = request.GET['dataset']
+        mappings = get_mappings_for_dataset(dataset)
         return JsonResponse({'mappings': mappings})
     return JsonResponse({'error': 'distribution is not passed'})
 
 
-def get_mappings_for_distribution(distribution):
-    url = os.path.join(mappingpedia_engine_base_url, 'mappings?distribution_id='+distribution.strip())
-    print 'get_mappings_for_distribution> url: '+url
+def get_mappings_for_dataset(dataset):
+    url = os.path.join(mappingpedia_engine_base_url, 'mappings?dataset_id='+dataset.strip())
+    print 'get_mappings_for_dataset> url: '+url
     response = requests.get(url)
     if response.status_code == 200:
         json_response = json.loads(response.content)
@@ -394,3 +411,14 @@ def generate_mappings(request):
             return render(request, 'msg.html', {'msg': 'error: ' + response.content})
 
     return JsonResponse({'status': 'Ok'})
+
+
+def get_distribution(distribution_id):
+    url = os.path.join(ckan_base_url, 'action/resource_show?id='+distribution_id)
+    print 'get distribution url: '+url
+    response = requests.get(url)
+    if response.status_code == 200:
+        json_response = json.loads(response.content)
+        return json_response['result']
+    else:
+        return None
