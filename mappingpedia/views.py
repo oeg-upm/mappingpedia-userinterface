@@ -231,10 +231,13 @@ def get_mappings(request):
 
 
 def get_mappings_for_distribution(distribution):
-    url = os.path.join(mappingpedia_engine_base_url, 'mappings?datasetId='+distribution.strip())
+    url = os.path.join(mappingpedia_engine_base_url, 'mappings?distribution_id='+distribution.strip())
+    print 'get_mappings_for_distribution> url: '+url
     response = requests.get(url)
     if response.status_code == 200:
         json_response = json.loads(response.content)
+        print 'get mappings result:'
+        print response.content
         mappings = json_response['results']
     else:
         print 'get mapping status code error'
