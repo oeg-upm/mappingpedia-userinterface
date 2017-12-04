@@ -38,7 +38,11 @@ class Dataset(View):
             response = requests.post(url, data)
         elif 'file' in request.FILES:
             distribution_file = request.FILES['file']
-            response = requests.post(url, files=[('distribution_file', distribution_file)])
+            data = {}
+            if 'name' in request.POST and request.POST['name'].strip() != '':
+                print 'name is sent: %s' % request.POST['name']
+                data['datasetTitle'] = request.POST['name']
+            response = requests.post(url, files=[('distribution_file', distribution_file)], data=data)
         else:
             print "ERROR"
             return "error"
@@ -189,7 +193,7 @@ def get_datasets(request):
 
 
 def get_datasets_for_organization(organization, only_contains_distributions=False):
-    url = os.path.join(ckan_base_url, 'action','organization_show')
+    url = os.path.join(ckan_base_url, 'action', 'organization_show')
     url += '?id=%s&include_datasets=true' % organization.strip()
     response = requests.get(url)
     print 'get url: '
@@ -201,9 +205,19 @@ def get_datasets_for_organization(organization, only_contains_distributions=Fals
             print "success ckan"
             datasets_elements = json_response["result"]['packages']
             if only_contains_distributions:
-                datasets = [d['title'] for d in datasets_elements if len(get_distributions_for_dataset(d['title'], only_original=True))>0]
+                datasets = [d for d in datasets_elements if len(get_distributions_for_dataset(d['title'], only_original=True))>0]
             else:
-                datasets = [d['title'] for d in datasets_elements]
+                datasets = [d for d in datasets_elements]
+
+            # if only_contains_distributions:
+            #     datasets = [d['title'] for d in datasets_elements if len(get_distributions_for_dataset(d['title'], only_original=True))>0]
+            # else:
+            #     datasets = [d['title'] for d in datasets_elements]
+                # ppp = [d for d in datasets_elements[:10]]
+                # for p in ppp:
+                #     print "printing datasets: "
+                #     # print p
+                #     print json.dumps(p, indent=4, sort_keys=True)
             return datasets
         else:
             print "response: " + str(response.content)
@@ -225,7 +239,7 @@ def get_distributions_for_dataset(dataset_id, only_original=False):
     url = os.path.join(ckan_base_url, 'action', 'package_show?id='+dataset_id)
     response = requests.get(url)
     if response.status_code == 200:
-        print 'status code is success'
+        print 'get_distributions_for_dataset> status code is success'
         json_response = json.loads(response.content)
         if "success" in json_response and json_response["success"]:
             distributions = json_response['result']['resources']
@@ -233,9 +247,9 @@ def get_distributions_for_dataset(dataset_id, only_original=False):
                 distributions = [d for d in distributions if d['format'].upper() in ['XML', 'JSON', 'CSV']]
             return distributions
         else:
-            print "not success"
+            print "get_distributions_for_dataset> not success"
     else:
-        print "not a success status code"
+        print "get_distributions_for_dataset> not a success status code"
     return []
 
 
