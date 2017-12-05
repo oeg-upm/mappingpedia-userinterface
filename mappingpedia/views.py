@@ -8,6 +8,8 @@ from subprocess import call
 from django.http import JsonResponse
 import random
 import string
+from rmljson import get_json_path
+
 
 ckan_base_url = 'http://83.212.100.226/ckan/api/'
 mappingpedia_engine_base_url = "http://mappingpedia-engine.linkeddata.es"
@@ -121,6 +123,7 @@ class Execute(View):
             language = 'rml'
         else:
             language = 'r2rml'
+        print "the language is: %s" % language
         url = os.path.join(mappingpedia_engine_base_url, 'executions2')
         print url
         data = {
@@ -181,7 +184,7 @@ def get_organizations():
 def get_datasets(request):
     print 'get_datasets'
     if 'organization' in request.GET:
-        organization =  request.GET['organization'].strip()
+        organization = request.GET['organization'].strip()
         print 'organization %s' % organization
         datasets = get_datasets_for_organization(organization, only_contains_distributions=False)
         #print 'datasets: '
@@ -280,20 +283,32 @@ def autocomplete(request):
     return render(request, 'autocomplete.html')
 
 
-def editor_csv(request, download_url, file_name, dataset):
+def editor_csv(request, download_url, dataset, distribution):
+    print "csv editor"
     response = requests.get(download_url)
     if response.status_code == 200:
         line = response.content.split('\n')[0]
         headers = line.split(',')
-        return render(request, 'editor.html', {'headers': headers, 'file_name': file_name, 'dataset': dataset})
+        return render(request, 'editor.html', {'headers': headers, 'dataset': dataset, 'distribution': distribution})
+    else:
+        return render(request, 'msg.html', {'error': 'can not download file: ' + download_url})
+
+
+def editor_json(request, download_url, dataset, distribution):
+    print "json editor"
+    response = requests.get(download_url)
+    if response.status_code == 200:
+        from rmljson import get_json_as_cols
+        headers = get_json_as_cols(response.content)
+        return render(request, 'editor.html', {'headers': headers, 'dataset': dataset, 'distribution': distribution})
     else:
         return render(request, 'msg.html', {'error': 'can not download file: ' + download_url})
 
 
 def editor(request):
     if 'dataset' in request.GET and 'distribution' in request.GET:
-        dataset = request.GET['dataset']
-        distribution = request.GET['distribution']
+        dataset = request.GET['dataset'].strip()
+        distribution = request.GET['distribution'].strip()
         url = os.path.join(ckan_base_url, 'action', 'resource_show?id='+distribution)
         print 'resource_show url: '+url
         response = requests.get(url)
@@ -303,15 +318,12 @@ def editor(request):
             if 'success' in json_response and json_response['success'] is True:
                 print json_response
                 download_url = json_response['result']['url'].strip()
-                if download_url[-1] == '/':
-                    download_url = download_url[0:-1]
-                file_name = download_url.split('/')[-1]
-                file_name_no_ext = ".".join(file_name.split('.')[:-1])
-                if file_name_no_ext.strip() == '':
-                    print 'filename stored in ckan has to contain an extension: '+file_name
-                    file_name_no_ext = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(10))
                 if json_response['result']['format'].upper() == 'CSV':
-                    return editor_csv(request, download_url, file_name_no_ext, dataset)
+                    return editor_csv(request=request, download_url=download_url, dataset=dataset,
+                                      distribution=distribution)
+                elif json_response['result']['format'].upper() == 'JSON':
+                    return editor_json(request=request, download_url=download_url, dataset=dataset,
+                                       distribution=distribution)
                 else:
                     return render(request, 'msg.html', {'msg': 'format: '+json_response['result']['format'].upper()})
             else:
@@ -377,18 +389,75 @@ def generate_r2rml_mappings(file_name, entity_class, entity_column, mappings):
     return mapping_file_path
 
 
+def generate_rml_mappings(file_name, entity_class, entity_column, mappings, file_url):
+    json_path = get_json_path_from_file_url(file_url)
+    if json_path is None:
+        return None
+    from settings import BASE_DIR
+    mapping_id = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(10))
+    single_property_mapping = """
+        rr:predicateObjectMap [
+          rr:predicate schema:%s;
+          rr:objectMap    [ rml:reference "%s" ]
+        ];
+    """
+    proper_mappings_list = [single_property_mapping % (m["val"].replace('http://schema.org/',''), m["key"]) for m in mappings]
+    property_column_mapping = "\n".join(proper_mappings_list)
+    mapping_file = """
+        @prefix rr: <http://www.w3.org/ns/r2rml#>.
+        @prefix rml: <http://semweb.mmlab.be/ns/rml#> .
+        @prefix ql: <http://semweb.mmlab.be/ns/ql#> .
+        @prefix mail: <http://example.com/mail#>.
+        @prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
+        @prefix ex: <http://www.example.com/> .
+        @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+        @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+        @prefix transit: <http://vocab.org/transit/terms/> .
+        @prefix wgs84_pos: <http://www.w3.org/2003/01/geo/wgs84_pos#>.
+        @prefix schema: <http://schema.org/>.
+        @prefix gn: <http://www.geonames.org/ontology#>.
+        @prefix geosp: <http://www.telegraphis.net/ontology/geography/geography#> .
+        <%s>
+        rml:logicalSource [
+            rml:source  "%s";
+            rml:referenceFormulation ql:JSONPath;
+            rml:iterator "$.%s.*"
+
+        ];
+
+        rr:subjectMap [
+            rml:reference "%s";
+            rr:class schema:%s
+        ];
+
+        %s
+    .
+    """ % (mapping_id, file_name, ".".join(json_path), entity_column, entity_class, property_column_mapping)
+    print mapping_file
+    mapping_file_path = os.path.join(BASE_DIR, 'local', mapping_id+'.rml.ttl')
+    print 'mapping file path:'
+    print mapping_file_path
+    f = open(mapping_file_path, 'w')
+    f.write(mapping_file)
+    f.close()
+    return mapping_file_path
+
+
 def generate_mappings(request):
     print request.POST
     mappings = []
-    if 'file_name' not in request.POST:
-        return JsonResponse({'error': 'file_name is not passed'})
+    # if 'file_name' not in request.POST:
+    #     return JsonResponse({'error': 'file_name is not passed'})
     if 'entity_class'  not in request.POST:
         return JsonResponse({'error': 'entity_class is not passed'})
     if 'entity_column' not in request.POST:
         return JsonResponse({'error': 'entity_column is not passed'})
     if 'dataset' not in request.POST:
         return JsonResponse({'error': 'dataset is not passed'})
-    file_name = request.POST['file_name'].strip()
+    if 'distribution' not in request.POST:
+        return JsonResponse({'error': 'distribution is not passed'})
+    distribution = request.POST['distribution'].strip()
+    # file_name = request.POST['file_name'].strip()
     entity_class = request.POST['entity_class'].strip()
     entity_column = request.POST['entity_column'].strip()
     dataset = request.POST['dataset'].strip()
@@ -398,33 +467,47 @@ def generate_mappings(request):
         json_response = json.loads(response.content)
         organization = json_response["result"]["organization"]["id"]
 
-    for i in range(len(request.POST)):
-        key = 'form_key_'+str(i)
-        val = 'form_val_'+str(i)
-        if key in request.POST and val in request.POST:
-            if request.POST[val].strip() != '':
-                element = {"key": request.POST[key], "val": request.POST[val]}
-                mappings.append(element)
-        else:
-            break
-    if '.' in file_name and file_name.split('.')[-1].upper() in ['JSON', 'XML']:
-        return render(request, 'msg.html', {'msg': 'RML is not supported yet'})
-    else:
-        mapping_file = generate_r2rml_mappings(file_name, entity_class, entity_column, mappings)
-        mapping_file = open(mapping_file)
-        print mapping_file
-        url = os.path.join(mappingpedia_engine_base_url, 'mappings', organization, dataset)
-        print "the url to upload mapping"
-        print url
-        response = requests.post(url, files=[('mappingFile', mapping_file)])
+        for i in range(len(request.POST)):
+            key = 'form_key_'+str(i)
+            val = 'form_val_'+str(i)
+            if key in request.POST and val in request.POST:
+                if request.POST[val].strip() != '':
+                    element = {"key": request.POST[key], "val": request.POST[val]}
+                    mappings.append(element)
+            else:
+                break
+        url = os.path.join(ckan_base_url, 'action', 'resource_show?id=' + distribution)
+        print 'url: '+url
+        response = requests.get(url)
         if response.status_code == 200:
-            print response.content
-            download_url = json.loads(response.content)['mapping_document_download_url']
-            return render(request, 'msg.html', {'msg': 'mappings has been registered with download_url: ' + download_url})
-        else:
-            return render(request, 'msg.html', {'msg': 'error: ' + response.content})
+            json_response = json.loads(response.content)
+            download_url = json_response['result']['url'].strip()
 
-    return JsonResponse({'status': 'Ok'})
+            if json_response['result']['format'].upper() == 'CSV':
+                mapping_file = generate_r2rml_mappings(file_name=get_file_from_url(download_url, with_extension=False),
+                                                       entity_class=entity_class, entity_column=entity_column,
+                                                       mappings=mappings)
+            elif json_response['result']['format'].upper() == 'JSON':
+                mapping_file = generate_rml_mappings(entity_class=entity_class, entity_column=entity_column,
+                                                     file_name=get_file_from_url(download_url, with_extension=True),
+                                                     mappings=mappings, file_url=json_response['result']['url'])
+            else:
+                return render(request, 'msg.html', {'msg': 'the format of distribution file is neither a CSV nor a JSON'})
+            mapping_file = open(mapping_file)
+            print mapping_file
+            url = os.path.join(mappingpedia_engine_base_url, 'mappings', organization, dataset)
+            print "the url to upload mapping"
+            print url
+            response = requests.post(url, files=[('mappingFile', mapping_file)])
+            if response.status_code == 200:
+                print response.content
+                download_url = json.loads(response.content)['mapping_document_download_url']
+                return render(request, 'msg.html', {'msg': 'mappings has been registered with download_url: ' + download_url})
+            else:
+                return render(request, 'msg.html', {'msg': 'error: ' + response.content})
+    else:
+        print 'url: '+url
+        return JsonResponse({'error': 'ckan error status code'})
 
 
 def get_distribution(distribution_id):
@@ -438,3 +521,34 @@ def get_distribution(distribution_id):
         return None
 
 
+def get_file_from_url(url, with_extension=True):
+    """
+    :param url:
+    :param with_extension: whether the return value contains the extension or not
+    :return:
+    """
+    download_url = url
+    if download_url[-1] == '/':
+        download_url = download_url[0:-1]
+    file_name = download_url.split('/')[-1]
+    file_name_no_ext = ".".join(file_name.split('.')[:-1])
+    if file_name_no_ext.strip() == '':
+        print 'filename has no extension: ' + file_name
+        file_name_no_ext = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(10))
+    if with_extension:
+        return file_name
+    else:
+        return file_name_no_ext
+
+
+def get_json_path_from_file_url(url):
+    response = requests.get(url)
+    if response.status_code == 200:
+        try:
+            j = json.loads(response.content)
+            return get_json_path(j)['json_path']
+        except Exception as e:
+            print 'get_json_path_from_file_url> exception: %s' % str(e)
+    else:
+        print 'get_json_path_from_file_url> error getting the distribution file from url: %s' % url
+    return None

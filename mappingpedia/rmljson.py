@@ -29,7 +29,6 @@ t3 = """
 }
 """
 
-
 t4 = """
 {
 "name": "abc",
@@ -87,7 +86,7 @@ def get_json_as_cols(json_text):
             print "max_no is 0"
             return []
         else:
-            print jpath_result["json_path"]
+            print "json_path: <%s> with num of elements: %d" % (jpath_result["json_path"], jpath_result["max_no"])
             return json_unfold_json_path(j, jpath_result["json_path"])[0].keys()
     except:
         print "Error parsing the json text"
