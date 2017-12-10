@@ -9,7 +9,7 @@ from django.http import JsonResponse
 import random
 import string
 from rmljson import get_json_path
-
+from settings import BASE_DIR
 
 ckan_base_url = 'http://83.212.100.226/ckan/api/'
 mappingpedia_engine_base_url = "http://mappingpedia-engine.linkeddata.es"
@@ -338,7 +338,9 @@ def editor(request):
 def get_properties(request):
     if 'concept' in request.GET:
         concept = request.GET['concept'].strip()
-        f = open('utils/schema-prop.json')
+        schema_prop_path = os.path.join(BASE_DIR, 'utils/schema-prop.json')
+        print 'schema_prop_path: %s' % schema_prop_path
+        f = open(schema_prop_path)
         properties_j = json.loads(f.read())
         if concept in properties_j:
             properties = list(set(properties_j[concept]))

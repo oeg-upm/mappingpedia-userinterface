@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 import json
 
+
 def generate_prop_json(file_dir):
     df = pd.read_csv(file_dir)
     t = '{'
