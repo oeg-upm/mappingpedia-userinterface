@@ -12,14 +12,9 @@ def generate_prop_json(file_dir):
 
         key = row[1]
         properties_str = str(row[5])
-        #properties_str = row[5]
-        #if np.isnan(properties_str):
         if properties_str.strip() == 'nan':
             properties_as_str = ""
         else:
-            # print key
-            # print type(properties_str)
-            # print properties_str
             properties = properties_str.replace('\n', '').split(',')
             properties_clean = ['"'+p.strip()+'"' for p in properties]
             properties_as_str = ",".join(properties_clean)
@@ -39,32 +34,6 @@ def generate_prop_json(file_dir):
     except Exception as e:
         print "produced json is not correct: %s" % str(e)
 
-
-# def generate_prop_json(file_dir):
-#     t = '{'
-#     f = open(file_dir)
-#     pd.read_csv(file_dir)
-#     for line in f.readlines()[0:2]:
-#         cells = line.split(',')
-
-#         # print 'cells:'
-#         print cells
-#         key = cells[1]
-#         vals = cells[7]
-#         print '5: '+cells[5]
-#         print '6: '+cells[6]
-#         print '7: '+cells[7]
-#         print '8: '+cells[8]
-#         print 'vals: '
-#         print vals
-#         vals_list = [('"' + p.strip() + '"') for p in vals]
-#         vals_list_as_str = ",".join(vals_list)
-#         print "vals_list_as_str: "
-#         print vals_list_as_str
-#         t += '"'+key+'":[' +vals_list_as_str+'],'
-#     f_output = open("schema-prop.json", 'w')
-#     f_output.write(t)
-#     f_output.close()
 
 if __name__ == '__main__':
     #print sys.argv[1]
