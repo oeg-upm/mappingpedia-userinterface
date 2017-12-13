@@ -299,9 +299,7 @@ def editor_csv(request, download_url, dataset, distribution):
 
 def editor_json(request, download_url, dataset, distribution):
     print "json editor"
-    headers = {
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8'
-    }
+    headers = get_required_headers()
     response = requests.get(download_url, headers=headers)
     print "download url: <%s>" % download_url
     if response.status_code == 200:
@@ -502,6 +500,10 @@ def generate_mappings(request):
                                                      mappings=mappings, file_url=json_response['result']['url'])
             else:
                 return render(request, 'msg.html', {'msg': 'the format of distribution file is neither a CSV nor a JSON'})
+            if mapping_file is None:
+                return render(request, 'msg.html', {'msg': 'mappingpedia is unable to detect a json path of the data'})
+            print "mapping_file: "
+            print mapping_file
             mapping_file_f = open(mapping_file)
             print mapping_file_f
             url = os.path.join(mappingpedia_engine_base_url, 'mappings', organization, dataset)
@@ -555,7 +557,7 @@ def get_file_from_url(url, with_extension=True):
 
 
 def get_json_path_from_file_url(url):
-    response = requests.get(url)
+    response = requests.get(url, headers = get_required_headers())
     if response.status_code == 200:
         try:
             j = json.loads(response.content)
@@ -565,3 +567,10 @@ def get_json_path_from_file_url(url):
     else:
         print 'get_json_path_from_file_url> error getting the distribution file from url: %s' % url
     return None
+
+
+def get_required_headers():
+    headers = {
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8'
+    }
+    return headers
