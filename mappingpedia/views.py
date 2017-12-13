@@ -235,7 +235,6 @@ def get_datasets_for_organization(organization, only_contains_distributions=Fals
 def get_distributions(request):
     if 'dataset' in request.GET:
         distributions = get_distributions_for_dataset(request.GET['dataset'], only_original=True)
-        # originals = [d for d in distributions if d['format'].upper() in ['XML', 'JSON', 'CSV']]
         return JsonResponse({'distributions': distributions})
     else:
         return JsonResponse({'error': 'dataset is not passed'})

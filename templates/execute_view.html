@@ -42,7 +42,7 @@ $(document).ready(function(){
                     for(i=0;i<distributions.length;i++){
                         console.log(distributions[i]);
                         if(distributions[i]["name"] == null || distributions[i]["name"].trim()==""){
-                            single_option = '<option value="'+distributions[i]["id"]+'">'+distributions[i]["id"]+'</option>\n';
+                            single_option = '<option value="'+distributions[i]["id"]+'">'+distributions[i]["id"].substring(0,5)+' ('+distributions[i]["url"]+')'+'</option>\n';
                         }
                         else{
                             single_option = '<option value="'+distributions[i]["id"]+'">'+distributions[i]["name"]+'</option>\n';
