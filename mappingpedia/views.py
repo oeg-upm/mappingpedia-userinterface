@@ -47,7 +47,7 @@ class Dataset(View):
             response = requests.post(url, files=[('distribution_file', distribution_file)], data=data)
         else:
             print "ERROR"
-            return "error"
+            return render(request, 'msg.html', {'msg': 'error: no distribution file or URL is passed'})
         if response.status_code == 200:
             dataset_id = json.loads(response.content)['dataset_id']
             return render(request, 'msg.html', {'msg': 'The dataset has been registered with id = '+dataset_id})
@@ -296,10 +296,22 @@ def editor_csv(request, download_url, dataset, distribution):
 
 def editor_json(request, download_url, dataset, distribution):
     print "json editor"
-    response = requests.get(download_url)
+    headers = {
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8'
+    }
+    response = requests.get(download_url, headers=headers)
+    print "download url: <%s>" % download_url
     if response.status_code == 200:
         from rmljson import get_json_as_cols
         headers = get_json_as_cols(response.content)
+
+
+        f = open('local/editor_json.json', 'w')
+        f.write(response.content)
+        f.close()
+
+
+
         return render(request, 'editor.html', {'headers': headers, 'dataset': dataset, 'distribution': distribution})
     else:
         return render(request, 'msg.html', {'error': 'can not download file: ' + download_url})
