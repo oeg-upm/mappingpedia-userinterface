@@ -89,9 +89,12 @@ class Mapping(View):
         if response.status_code == 200:
             print response.content
             download_url = json.loads(response.content)['mapping_document_download_url']
-            return render(request, 'msg.html', {'msg': 'mappings has been registered with download_url: '+download_url})
+            #return render(request, 'msg.html', {'msg': 'mappings has been registered with download_url: '+download_url})
+            return render(request, 'msg.html',
+                          {'msg': 'mappings has been registered with ', 'hreftitle': 'download url',
+                           'hreflink': download_url})
         else:
-            return render(request, 'msg.html', {'msg': 'error: '+response.content})
+            return render(request, 'msg.html', {'msg': 'error from mappingpedia-engine API: '+response.content})
 
 
 class Execute(View):
@@ -143,7 +146,7 @@ class Execute(View):
             print response.content
             return render(request, 'msg.html', {'msg': 'Execution results can be found here %s'%result_url})
         else:
-            return render(request, 'msg.html', {'msg': 'error: '+response.content})
+            return render(request, 'msg.html', {'msg': 'error from mappingpedia-engine API: '+response.content})
 
 
 def home(request):
@@ -499,18 +502,22 @@ def generate_mappings(request):
                                                      mappings=mappings, file_url=json_response['result']['url'])
             else:
                 return render(request, 'msg.html', {'msg': 'the format of distribution file is neither a CSV nor a JSON'})
-            mapping_file = open(mapping_file)
-            print mapping_file
+            mapping_file_f = open(mapping_file)
+            print mapping_file_f
             url = os.path.join(mappingpedia_engine_base_url, 'mappings', organization, dataset)
             print "the url to upload mapping"
             print url
-            response = requests.post(url, files=[('mappingFile', mapping_file)])
+            response = requests.post(url, files=[('mappingFile', mapping_file_f)])
             if response.status_code == 200:
                 print response.content
                 download_url = json.loads(response.content)['mapping_document_download_url']
-                return render(request, 'msg.html', {'msg': 'mappings has been registered with download_url: ' + download_url})
+                # return render(request, 'msg.html', {'msg': 'mappings has been registered with download_url: ' + download_url})
+                return render(request, 'msg.html',
+                              {'msg': 'mappings has been registered with', 'hreftitle': 'download url',
+                               'hreflink': download_url})
+
             else:
-                return render(request, 'msg.html', {'msg': 'error: ' + response.content})
+                return render(request, 'msg.html', {'msg': 'error from mappingpedia-engine API: ' + response.content})
     else:
         print 'url: '+url
         return JsonResponse({'error': 'ckan error status code'})
