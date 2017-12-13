@@ -155,7 +155,7 @@ def webhook(request):
     from settings import BASE_DIR
     try:
         payload = json.loads(request.POST['payload'], strict=False)
-        comm = "cd %s; git pull" % BASE_DIR
+        comm = "cd %s; git pull origin master" % BASE_DIR
         print "git pull command: %s" % comm
         call(comm, shell=True)
         return JsonResponse({"status": "Ok"})
@@ -304,14 +304,6 @@ def editor_json(request, download_url, dataset, distribution):
     if response.status_code == 200:
         from rmljson import get_json_as_cols
         headers = get_json_as_cols(response.content)
-
-
-        f = open('local/editor_json.json', 'w')
-        f.write(response.content)
-        f.close()
-
-
-
         return render(request, 'editor.html', {'headers': headers, 'dataset': dataset, 'distribution': distribution})
     else:
         return render(request, 'msg.html', {'error': 'can not download file: ' + download_url})
