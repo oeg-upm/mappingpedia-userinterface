@@ -423,6 +423,7 @@ def generate_rml_mappings(file_name, entity_class, entity_column, mappings, file
         @prefix schema: <http://schema.org/>.
         @prefix gn: <http://www.geonames.org/ontology#>.
         @prefix geosp: <http://www.telegraphis.net/ontology/geography/geography#> .
+        @base <http://mappingpedia.linkeddata.es/resource/> .
         <%s>
         rml:logicalSource [
             rml:source  "%s";
