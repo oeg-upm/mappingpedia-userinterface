@@ -21,7 +21,10 @@ organization_id = "zaragoza_test"
 class Dataset(View):
 
     def get(self, request):
-        organizations = get_organizations()
+        if 'organization' in request.GET:
+            organizations = [request.GET['organization'].strip()]
+        else:
+            organizations = get_organizations()
         return render(request, 'dataset_view.html', {'nav': 'dataset', 'organizations': organizations})
 
     def post(self, request):
@@ -58,8 +61,11 @@ class Dataset(View):
 class Mapping(View):
 
     def get(self, request):
-        organizations = get_organizations()
-        datasets = []#get_datasets()
+        if 'organization' in request.GET:
+            organizations = [request.GET['organization'].strip()]
+        else:
+            organizations = get_organizations()
+        datasets = []
         return render(request, 'mapping_view.html', {'datasets': datasets, 'nav': 'mapping',
                                                      'organizations': organizations})
 
@@ -100,7 +106,10 @@ class Mapping(View):
 class Execute(View):
 
     def get(self, request):
-        organizations = get_organizations()
+        if 'organization' in request.GET:
+            organizations = [request.GET['organization'].strip()]
+        else:
+            organizations = get_organizations()
         datasets = []#get_datasets()
         return render(request, 'execute_view.html', {'datasets': datasets, 'nav': 'execute',
                                                      'organizations': organizations})
