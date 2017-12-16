@@ -13,6 +13,7 @@ from settings import BASE_DIR
 
 ckan_base_url = 'http://83.212.100.226/ckan/api/'
 mappingpedia_engine_base_url = "http://mappingpedia-engine.linkeddata.es"
+#mappingpedia_engine_base_url ="http://83.212.100.226:8090"
 #mappingpedia_engine_base_url = "http://localhost:8090"
 #mappingpedia_engine_base_url = "http://127.0.0.1:80/"
 organization_id = "zaragoza_test"
