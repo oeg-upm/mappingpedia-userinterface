@@ -23,6 +23,9 @@ class Dataset(View):
     def get(self, request):
         if 'organization' in request.GET:
             organizations = [request.GET['organization'].strip()]
+            request.session['organization'] = request.GET['organization'].strip()
+        elif 'organization' in request.session:
+            organizations = [request.sessions['organization']]
         else:
             organizations = get_organizations()
         return render(request, 'dataset_view.html', {'nav': 'dataset', 'organizations': organizations})
@@ -63,6 +66,9 @@ class Mapping(View):
     def get(self, request):
         if 'organization' in request.GET:
             organizations = [request.GET['organization'].strip()]
+            request.session['organization'] = request.GET['organization'].strip()
+        elif 'organization' in request.session:
+            organizations = [request.sessions['organization']]
         else:
             organizations = get_organizations()
         datasets = []
@@ -108,6 +114,9 @@ class Execute(View):
     def get(self, request):
         if 'organization' in request.GET:
             organizations = [request.GET['organization'].strip()]
+            request.session['organization'] = request.GET['organization'].strip()
+        elif 'organization' in request.session:
+            organizations = [request.sessions['organization']]
         else:
             organizations = get_organizations()
         datasets = []#get_datasets()
@@ -351,7 +360,7 @@ def editor(request):
 def get_properties(request):
     if 'concept' in request.GET:
         concept = request.GET['concept'].strip()
-        schema_prop_path = url_join([BASE_DIR, 'utils/schema-prop.json'])
+        schema_prop_path = os.path.join(BASE_DIR, 'utils','schema-prop.json')
         print 'schema_prop_path: %s' % schema_prop_path
         f = open(schema_prop_path)
         properties_j = json.loads(f.read())
@@ -477,7 +486,7 @@ def generate_mappings(request):
     entity_class = request.POST['entity_class'].strip()
     entity_column = request.POST['entity_column'].strip()
     dataset = request.POST['dataset'].strip()
-    url = url_join(ckan_base_url, 'action', 'package_show?id='+dataset)
+    url = url_join([ckan_base_url, 'action', 'package_show?id='+dataset])
     response = requests.get(url)
     if response.status_code == 200:
         json_response = json.loads(response.content)
