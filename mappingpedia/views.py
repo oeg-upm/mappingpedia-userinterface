@@ -32,7 +32,7 @@ class Dataset(View):
             organization = request.POST['organization']
         else:
             organization = organization_id
-        url = os.path.join(mappingpedia_engine_base_url, 'datasets', organization)
+        url = url_join([mappingpedia_engine_base_url, 'datasets', organization])
         if 'url' in request.POST and request.POST['url'].strip() != '':
             distribution_download_url = request.POST['url']
             data = {
@@ -80,7 +80,7 @@ class Mapping(View):
             return render(request, 'msg.html', {'msg': 'dataset id should not be empty'})
         if 'mapping_file_url' in request.POST and request.POST['mapping_file_url'].strip() != '':
             mapping_file_url = request.POST['mapping_file_url']
-            url = os.path.join(mappingpedia_engine_base_url, 'mappings', organization, dataset_id)
+            url = url_join([mappingpedia_engine_base_url, 'mappings', organization, dataset_id])
             data = {
                 "mappingDocumentDownloadURL": mapping_file_url
             }
@@ -88,7 +88,7 @@ class Mapping(View):
         else:
             mapping_file = request.FILES['mapping_file']
             print mapping_file
-            url = os.path.join(mappingpedia_engine_base_url, 'mappings', organization, dataset_id)
+            url = url_join([mappingpedia_engine_base_url, 'mappings', organization, dataset_id])
             print "the url"
             print url
             response = requests.post(url, files=[('mappingFile', mapping_file)])
@@ -136,7 +136,7 @@ class Execute(View):
         else:
             language = 'r2rml'
         print "the language is: %s" % language
-        url = os.path.join(mappingpedia_engine_base_url, 'executions2')
+        url = url_join([mappingpedia_engine_base_url, 'executions2'])
         print url
         data = {
             # "mapping_document_download_url": request.POST['mapping_document_download_url'],
@@ -177,7 +177,7 @@ def webhook(request):
 
 
 def get_organizations():
-    url = os.path.join(ckan_base_url, 'action/organization_list')
+    url = url_join([ckan_base_url, 'action/organization_list'])
     response = requests.get(url)
     organizations = []
     if response.status_code == 200:
@@ -208,7 +208,7 @@ def get_datasets(request):
 
 
 def get_datasets_for_organization(organization, only_contains_distributions=False):
-    url = os.path.join(ckan_base_url, 'action', 'organization_show')
+    url = url_join([ckan_base_url, 'action', 'organization_show'])
     url += '?id=%s&include_datasets=true' % organization.strip()
     response = requests.get(url)
     print 'get url: '
@@ -250,7 +250,7 @@ def get_distributions(request):
 
 
 def get_distributions_for_dataset(dataset_id, only_original=False):
-    url = os.path.join(ckan_base_url, 'action', 'package_show?id='+dataset_id)
+    url = url_join([ckan_base_url, 'action', 'package_show?id='+dataset_id])
     response = requests.get(url)
     if response.status_code == 200:
         print 'get_distributions_for_dataset> status code is success'
@@ -276,7 +276,7 @@ def get_mappings(request):
 
 
 def get_mappings_for_dataset(dataset):
-    url = os.path.join(mappingpedia_engine_base_url, 'mappings?dataset_id='+dataset.strip())
+    url = url_join([mappingpedia_engine_base_url, 'mappings?dataset_id='+dataset.strip()])
     print 'get_mappings_for_dataset> url: '+url
     response = requests.get(url)
     if response.status_code == 200:
@@ -322,7 +322,7 @@ def editor(request):
     if 'dataset' in request.GET and 'distribution' in request.GET:
         dataset = request.GET['dataset'].strip()
         distribution = request.GET['distribution'].strip()
-        url = os.path.join(ckan_base_url, 'action', 'resource_show?id='+distribution)
+        url = url_join([ckan_base_url, 'action', 'resource_show?id='+distribution])
         print 'resource_show url: '+url
         response = requests.get(url)
         if response.status_code == 200:
@@ -351,7 +351,7 @@ def editor(request):
 def get_properties(request):
     if 'concept' in request.GET:
         concept = request.GET['concept'].strip()
-        schema_prop_path = os.path.join(BASE_DIR, 'utils/schema-prop.json')
+        schema_prop_path = url_join([BASE_DIR, 'utils/schema-prop.json'])
         print 'schema_prop_path: %s' % schema_prop_path
         f = open(schema_prop_path)
         properties_j = json.loads(f.read())
@@ -477,7 +477,7 @@ def generate_mappings(request):
     entity_class = request.POST['entity_class'].strip()
     entity_column = request.POST['entity_column'].strip()
     dataset = request.POST['dataset'].strip()
-    url = os.path.join(ckan_base_url, 'action', 'package_show?id='+dataset)
+    url = url_join(ckan_base_url, 'action', 'package_show?id='+dataset)
     response = requests.get(url)
     if response.status_code == 200:
         json_response = json.loads(response.content)
@@ -492,7 +492,7 @@ def generate_mappings(request):
                     mappings.append(element)
             else:
                 break
-        url = os.path.join(ckan_base_url, 'action', 'resource_show?id=' + distribution)
+        url = url_join([ckan_base_url, 'action', 'resource_show?id=' + distribution])
         print 'url: '+url
         response = requests.get(url)
         if response.status_code == 200:
@@ -515,7 +515,7 @@ def generate_mappings(request):
             print mapping_file
             mapping_file_f = open(mapping_file)
             print mapping_file_f
-            url = os.path.join(mappingpedia_engine_base_url, 'mappings', organization, dataset)
+            url = url_join([mappingpedia_engine_base_url, 'mappings', organization, dataset])
             print "the url to upload mapping"
             print url
             response = requests.post(url, files=[('mappingFile', mapping_file_f)])
@@ -535,7 +535,7 @@ def generate_mappings(request):
 
 
 def get_distribution(distribution_id):
-    url = os.path.join(ckan_base_url, 'action/resource_show?id='+distribution_id)
+    url = url_join([ckan_base_url, 'action/resource_show?id='+distribution_id])
     print 'get distribution url: '+url
     response = requests.get(url)
     if response.status_code == 200:
@@ -583,3 +583,19 @@ def get_required_headers():
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8'
     }
     return headers
+
+
+def url_join(a):
+    sep = "/"
+    b = []
+    if len(a) == 0:
+        return sep
+    for aa in a:
+        c = aa.strip()
+        if c[0] == sep:
+            c = c[1:]
+        if c[-1] == sep:
+            c = c[0:-1]
+        b.append(c)
+    full_path = sep.join(b)
+    return full_path
