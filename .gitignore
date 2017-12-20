@@ -1,6 +1,7 @@
 # local files (generated mappings)
 local/*
 local*
+.venv/*
 
 # Django
 db.sqlite3

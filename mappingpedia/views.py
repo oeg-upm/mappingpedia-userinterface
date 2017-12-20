@@ -26,7 +26,7 @@ class Dataset(View):
             organizations = [request.GET['organization'].strip()]
             request.session['organization'] = request.GET['organization'].strip()
         elif 'organization' in request.session:
-            organizations = [request.sessions['organization']]
+            organizations = [request.session['organization']]
         else:
             organizations = get_organizations()
         return render(request, 'dataset_view.html', {'nav': 'dataset', 'organizations': organizations})
@@ -69,7 +69,7 @@ class Mapping(View):
             organizations = [request.GET['organization'].strip()]
             request.session['organization'] = request.GET['organization'].strip()
         elif 'organization' in request.session:
-            organizations = [request.sessions['organization']]
+            organizations = [request.session['organization']]
         else:
             organizations = get_organizations()
         datasets = []
@@ -117,7 +117,7 @@ class Execute(View):
             organizations = [request.GET['organization'].strip()]
             request.session['organization'] = request.GET['organization'].strip()
         elif 'organization' in request.session:
-            organizations = [request.sessions['organization']]
+            organizations = [request.session['organization']]
         else:
             organizations = get_organizations()
         datasets = []#get_datasets()
@@ -474,7 +474,7 @@ def generate_mappings(request):
     mappings = []
     # if 'file_name' not in request.POST:
     #     return JsonResponse({'error': 'file_name is not passed'})
-    if 'entity_class'  not in request.POST:
+    if 'entity_class' not in request.POST:
         return JsonResponse({'error': 'entity_class is not passed'})
     if 'entity_column' not in request.POST:
         return JsonResponse({'error': 'entity_column is not passed'})
@@ -593,6 +593,12 @@ def get_required_headers():
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8'
     }
     return headers
+
+
+def clear_organization(request):
+    if 'organization' in request.session:
+        del request.session['organization']
+    return render(request, 'msg.html', {'msg': 'organization value is removed from your session'})
 
 
 def url_join(a):

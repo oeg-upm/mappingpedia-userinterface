@@ -37,7 +37,7 @@ $(document).ready(function(){
     <!--<label for="org">Organization Name</label>-->
     <!--<input type="text" name="organization" class="form-control" id="org" placeholder="Enter the organization name">-->
     <!--</div>-->
-    <div class="form-group">
+    <div class="form-group" {%if organizations|length == 1 %}hidden{%endif%}>
         <label for="organization">Organization Name</label>
         <select name="organization" class="form-control" id="organization">
             {%for organization in organizations%}
