@@ -192,7 +192,7 @@ def webhook(request):
     from settings import BASE_DIR
     try:
         payload = json.loads(request.POST['payload'], strict=False)
-        comm = "cd %s; git pull origin master" % BASE_DIR
+        comm = "cd %s; git pull origin master; .venv/bin/python manage.py makemigrations mappingpedia; .venv/bin/python manage.py migrate ;" % BASE_DIR
         print "git pull command: %s" % comm
         call(comm, shell=True)
         return JsonResponse({"status": "Ok"})
