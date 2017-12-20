@@ -23,8 +23,13 @@ class Dataset(View):
 
     def get(self, request):
         if 'organization' in request.GET:
-            organizations = [request.GET['organization'].strip()]
-            request.session['organization'] = request.GET['organization'].strip()
+            organization = request.GET['organization'].strip()
+            organizations = [organization]
+            if valid_organization(organization):
+                request.session['organization'] = organization
+            else: # invalid organization
+                clear_organization(request)
+                return render(request, 'msg.html', {'msg': 'invalid organization'})
         elif 'organization' in request.session:
             organizations = [request.session['organization']]
         else:
@@ -66,8 +71,13 @@ class Mapping(View):
 
     def get(self, request):
         if 'organization' in request.GET:
-            organizations = [request.GET['organization'].strip()]
-            request.session['organization'] = request.GET['organization'].strip()
+            organization = request.GET['organization'].strip()
+            organizations = [organization]
+            if valid_organization(organization):
+                request.session['organization'] = organization
+            else: # invalid organization
+                clear_organization(request)
+                return render(request, 'msg.html', {'msg': 'invalid organization'})
         elif 'organization' in request.session:
             organizations = [request.session['organization']]
         else:
@@ -114,13 +124,18 @@ class Execute(View):
 
     def get(self, request):
         if 'organization' in request.GET:
-            organizations = [request.GET['organization'].strip()]
-            request.session['organization'] = request.GET['organization'].strip()
+            organization = request.GET['organization'].strip()
+            organizations = [organization]
+            if valid_organization(organization):
+                request.session['organization'] = organization
+            else: # invalid organization
+                clear_organization(request)
+                return render(request, 'msg.html', {'msg': 'invalid organization'})
         elif 'organization' in request.session:
             organizations = [request.session['organization']]
         else:
             organizations = get_organizations()
-        datasets = []#get_datasets()
+        datasets = []
         return render(request, 'execute_view.html', {'datasets': datasets, 'nav': 'execute',
                                                      'organizations': organizations})
 
@@ -615,3 +630,7 @@ def url_join(a):
         b.append(c)
     full_path = sep.join(b)
     return full_path
+
+
+def valid_organization(organization):
+    return organization.strip() in get_organizations()

@@ -29,6 +29,7 @@ $(document).ready(function(){
 });
 
 
+
 </script>
 <br>
 <form method="POST" enctype="multipart/form-data"> {% csrf_token %}
@@ -37,7 +38,10 @@ $(document).ready(function(){
     <!--<label for="org">Organization Name</label>-->
     <!--<input type="text" name="organization" class="form-control" id="org" placeholder="Enter the organization name">-->
     <!--</div>-->
-    <div class="form-group" {%if organizations|length == 1 %}hidden{%endif%}>
+
+    {%if organizations|length == 1 %}
+    <h5>Organization: {{organizations.0}}</h5>
+    <div class="form-group" hidden>
         <label for="organization">Organization Name</label>
         <select name="organization" class="form-control" id="organization">
             {%for organization in organizations%}
@@ -45,6 +49,19 @@ $(document).ready(function(){
             {%endfor%}
         </select>
     </div>
+
+    {%else%}
+    <div class="form-group">
+        <label for="organization">Organization Name</label>
+        <select name="organization" class="form-control" id="organization">
+            {%for organization in organizations%}
+            <option value="{{organization}}">{{organization}}</option>
+            {%endfor%}
+        </select>
+    </div>
+
+    {%endif%}
+
 
     <div class="form-group">
         <div class="btn-group" role="group" aria-label="Basic example" data-toggle="buttons-radio">
@@ -69,7 +86,7 @@ $(document).ready(function(){
         <input type="file" name="file" class="form-control-file" id="dist-file">
     </div>
 
-    <div class="form-group" >
+    <div class="form-group">
         <label for="name">Distribution Name (Optional)</label>
         <input type="text" name="name" class="form-control" id="name" placeholder="Enter a name for the distribution">
     </div>
