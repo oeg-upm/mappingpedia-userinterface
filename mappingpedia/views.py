@@ -93,10 +93,11 @@ class Mapping(View):
                 'ckan_package_id': dataset_id,
             }
             response = requests.post(url, data)
+            print "the url"
+            print url
         else:
             mapping_file = request.FILES['mapping_file']
             print mapping_file
-            print "Freddy dataset id: %s" % str(dataset_id)
             url = url_join([mappingpedia_engine_base_url, 'mappings', organization, dataset_id])
             print "the url"
             print url
@@ -492,6 +493,7 @@ def generate_mappings(request):
     if response.status_code == 200:
         json_response = json.loads(response.content)
         organization = json_response["result"]["organization"]["id"]
+        organization_name = json_response["result"]["organization"]["name"]
 
         for i in range(len(request.POST)):
             key = 'form_key_'+str(i)
@@ -525,8 +527,7 @@ def generate_mappings(request):
             print mapping_file
             mapping_file_f = open(mapping_file)
             print mapping_file_f
-            url = url_join([mappingpedia_engine_base_url, 'mappings', organization, dataset])
-            print "Freddy dataset %s" % str(dataset)
+            url = url_join([mappingpedia_engine_base_url, 'mappings', organization_name, dataset])
             print "the url to upload mapping"
             print url
             response = requests.post(url, files=[('mappingFile', mapping_file_f)])
