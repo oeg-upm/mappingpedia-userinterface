@@ -22,18 +22,11 @@ organization_id = "zaragoza_test"
 class Dataset(View):
 
     def get(self, request):
-        if 'organization' in request.GET:
-            organization = request.GET['organization'].strip()
-            organizations = [organization]
-            if valid_organization(organization):
-                request.session['organization'] = organization
-            else: # invalid organization
-                clear_organization(request)
-                return render(request, 'msg.html', {'msg': 'invalid organization'})
-        elif 'organization' in request.session:
-            organizations = [request.session['organization']]
+        error_or_org = organization_params_check(request)
+        if isinstance(error_or_org, list):
+            organizations = error_or_org
         else:
-            organizations = get_organizations()
+            return error_or_org
         return render(request, 'dataset_view.html', {'nav': 'dataset', 'organizations': organizations})
 
     def post(self, request):
@@ -70,18 +63,11 @@ class Dataset(View):
 class Mapping(View):
 
     def get(self, request):
-        if 'organization' in request.GET:
-            organization = request.GET['organization'].strip()
-            organizations = [organization]
-            if valid_organization(organization):
-                request.session['organization'] = organization
-            else: # invalid organization
-                clear_organization(request)
-                return render(request, 'msg.html', {'msg': 'invalid organization'})
-        elif 'organization' in request.session:
-            organizations = [request.session['organization']]
+        error_or_org = organization_params_check(request)
+        if isinstance(error_or_org, list):
+            organizations = error_or_org
         else:
-            organizations = get_organizations()
+            return error_or_org
         datasets = []
         return render(request, 'mapping_view.html', {'datasets': datasets, 'nav': 'mapping',
                                                      'organizations': organizations})
@@ -123,18 +109,11 @@ class Mapping(View):
 class Execute(View):
 
     def get(self, request):
-        if 'organization' in request.GET:
-            organization = request.GET['organization'].strip()
-            organizations = [organization]
-            if valid_organization(organization):
-                request.session['organization'] = organization
-            else: # invalid organization
-                clear_organization(request)
-                return render(request, 'msg.html', {'msg': 'invalid organization'})
-        elif 'organization' in request.session:
-            organizations = [request.session['organization']]
+        error_or_org = organization_params_check(request)
+        if isinstance(error_or_org, list):
+            organizations = error_or_org
         else:
-            organizations = get_organizations()
+            return error_or_org
         datasets = []
         return render(request, 'execute_view.html', {'datasets': datasets, 'nav': 'execute',
                                                      'organizations': organizations})
@@ -634,3 +613,22 @@ def url_join(a):
 
 def valid_organization(organization):
     return organization.strip() in get_organizations()
+
+
+def organization_params_check(request):
+    if 'organization' in request.GET:
+        organization = request.GET['organization'].strip()
+        organizations = [organization]
+        if valid_organization(organization):
+            request.session['organization'] = organization
+        else:  # invalid organization
+            clear_organization(request)
+            return render(request, 'msg.html', {'msg': 'invalid organization'})
+    elif 'organization' in request.session:
+        organizations = [request.session['organization']]
+    else:
+        if 'auth' in os.environ and os.environ['auth'].lower() == 'true':
+            return render(request, 'msg.html', {'msg': 'organization should be passed'})
+        else:
+            organizations = get_organizations()
+    return organizations
