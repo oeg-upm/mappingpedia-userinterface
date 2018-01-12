@@ -40,11 +40,10 @@ class Dataset(View):
             data['datasetLanguage'] = request.POST['language']
         if 'keywords' in request.POST and request.POST['keywords'].strip() != '':
             data['datasetKeywords'] = request.POST['keywords']
+        if 'encoding' in request.POST and request.POST['encoding'].strip() != '':
+            data['distribution_encoding'] = request.POST['encoding']
         if 'url' in request.POST and request.POST['url'].strip() != '':
             distribution_download_url = request.POST['url']
-            # data = {
-            #     "distribution_download_url": distribution_download_url,
-            # }
             data[distribution_download_url] = distribution_download_url
             if 'name' in request.POST and request.POST['name'].strip() != '':
                 data['datasetTitle'] = request.POST['name']
@@ -90,16 +89,18 @@ class Mapping(View):
             mapping_file_url = request.POST['mapping_file_url']
             url = url_join([mappingpedia_engine_base_url, 'mappings', organization, dataset_id])
             data = {
-                "mappingDocumentDownloadURL": mapping_file_url
+                "mappingDocumentDownloadURL": mapping_file_url,
+                'ckan_package_id': dataset_id,
             }
             response = requests.post(url, data)
         else:
             mapping_file = request.FILES['mapping_file']
             print mapping_file
+            print "Freddy dataset id: %s" % str(dataset_id)
             url = url_join([mappingpedia_engine_base_url, 'mappings', organization, dataset_id])
             print "the url"
             print url
-            response = requests.post(url, files=[('mappingFile', mapping_file)])
+            response = requests.post(url, files=[('mappingFile', mapping_file)], data={'ckan_package_id': dataset_id})
         if response.status_code == 200:
             print response.content
             download_url = json.loads(response.content)['mapping_document_download_url']
@@ -525,6 +526,7 @@ def generate_mappings(request):
             mapping_file_f = open(mapping_file)
             print mapping_file_f
             url = url_join([mappingpedia_engine_base_url, 'mappings', organization, dataset])
+            print "Freddy dataset %s" % str(dataset)
             print "the url to upload mapping"
             print url
             response = requests.post(url, files=[('mappingFile', mapping_file_f)])
