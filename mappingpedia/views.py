@@ -35,17 +35,22 @@ class Dataset(View):
         else:
             organization = organization_id
         url = url_join([mappingpedia_engine_base_url, 'datasets', organization])
+        data = {}
+        if 'language' in request.POST and request.POST['language'].strip() != '':
+            data['datasetLanguage'] = request.POST['language']
+        if 'keywords' in request.POST and request.POST['keywords'].strip() != '':
+            data['datasetKeywords'] = request.POST['keywords']
         if 'url' in request.POST and request.POST['url'].strip() != '':
             distribution_download_url = request.POST['url']
-            data = {
-                "distribution_download_url": distribution_download_url,
-            }
+            # data = {
+            #     "distribution_download_url": distribution_download_url,
+            # }
+            data[distribution_download_url] = distribution_download_url
             if 'name' in request.POST and request.POST['name'].strip() != '':
                 data['datasetTitle'] = request.POST['name']
             response = requests.post(url, data)
         elif 'file' in request.FILES:
             distribution_file = request.FILES['file']
-            data = {}
             if 'name' in request.POST and request.POST['name'].strip() != '':
                 print 'name is sent: %s' % request.POST['name']
                 data['datasetTitle'] = request.POST['name']
