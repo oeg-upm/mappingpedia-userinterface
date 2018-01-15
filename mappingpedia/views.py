@@ -44,7 +44,7 @@ class Dataset(View):
             data['distribution_encoding'] = request.POST['encoding']
         if 'url' in request.POST and request.POST['url'].strip() != '':
             distribution_download_url = request.POST['url']
-            data[distribution_download_url] = distribution_download_url
+            data['distribution_download_url'] = distribution_download_url
             if 'name' in request.POST and request.POST['name'].strip() != '':
                 data['datasetTitle'] = request.POST['name']
             response = requests.post(url, data)
