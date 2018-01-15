@@ -81,16 +81,17 @@ class Mapping(View):
             organization = request.POST['organization']
         else:
             organization = organization_id
-        if 'dataset_id' in request.POST:
-            dataset_id = request.POST['dataset_id']
+
+        if 'dataset_name' in request.POST:
+            dataset_name = request.POST['dataset_name']
         else:
-            return render(request, 'msg.html', {'msg': 'dataset id should not be empty'})
+            return render(request, 'msg.html', {'msg': 'dataset name should not be empty'})
+
         if 'mapping_file_url' in request.POST and request.POST['mapping_file_url'].strip() != '':
             mapping_file_url = request.POST['mapping_file_url']
-            url = url_join([mappingpedia_engine_base_url, 'mappings', organization, dataset_id])
+            url = url_join([mappingpedia_engine_base_url, 'mappings', organization, dataset_name])
             data = {
                 "mappingDocumentDownloadURL": mapping_file_url,
-                'ckan_package_id': dataset_id,
             }
             response = requests.post(url, data)
             print "the url"
@@ -98,10 +99,11 @@ class Mapping(View):
         else:
             mapping_file = request.FILES['mapping_file']
             print mapping_file
-            url = url_join([mappingpedia_engine_base_url, 'mappings', organization, dataset_id])
+            url = url_join([mappingpedia_engine_base_url, 'mappings', organization, dataset_name])
             print "the url"
             print url
-            response = requests.post(url, files=[('mappingFile', mapping_file)], data={'ckan_package_id': dataset_id})
+            #response = requests.post(url, files=[('mappingFile', mapping_file)], data={'ckan_package_id': dataset_name})
+            response = requests.post(url, files=[('mappingFile', mapping_file)])
         if response.status_code == 200:
             print response.content
             download_url = json.loads(response.content)['mapping_document_download_url']
