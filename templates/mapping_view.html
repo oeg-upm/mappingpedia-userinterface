@@ -70,7 +70,7 @@ $(document).ready(function(){
             var i
             var single_option;
             for(i=0;i<datasets.length;i++){
-                single_option = '<option value="'+datasets[i].name+'">'+datasets[i].name+'</option>\n';
+                single_option = '<option value="'+datasets[i].name+'">'+datasets[i].title+'</option>\n';
                 options_html += single_option;
             }//for
              $("#dataset_select").html(options_html);
