@@ -19,6 +19,34 @@ mappingpedia_engine_base_url = "http://mappingpedia-engine.linkeddata.es"
 organization_id = "zaragoza_test"
 
 
+class Explore(View):
+
+    def get(self, request):
+        error_or_org = organization_params_check(request)
+        if isinstance(error_or_org, list):
+            organizations = error_or_org
+        else:
+            return error_or_org
+        return render(request, 'explore_view.html', {'nav': 'explore', 'organizations': organizations})
+
+    def post(self, request):
+
+        url = url_join([mappingpedia_engine_base_url, 'ogd/instances'])
+        url += '?aClass=%s' % request.POST['class_to_search'].strip()
+        url += '&maximum_results=%s' % request.POST['no_of_results'].strip()
+
+        print "url = " + url
+        response = requests.get(url)
+
+        if response.status_code == 200:
+            json_response = json.loads(response.content)['results']
+            print "json_response = " + str(json_response)
+
+
+            return render(request, 'msg.html', {'msg': str(json_response)})
+        else:
+            return render(request, 'msg.html', {'msg': response.content})
+
 class Dataset(View):
 
     def get(self, request):

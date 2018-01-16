@@ -26,6 +26,7 @@ urlpatterns = [
     url(r'dataset', views.Dataset.as_view()),
     url(r'mapping', views.Mapping.as_view()),
     url(r'execute', views.Execute.as_view()),
+    url(r'explore', views.Explore.as_view()),
     url(r'webhook', views.webhook),
     url(r'autocomplete', views.autocomplete),
     url(r'editor', views.editor),
