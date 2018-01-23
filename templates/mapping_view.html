@@ -160,7 +160,7 @@ $(document).ready(function(){
         <label for="dataset_select">Dataset</label><span id="num-of-datasets"></span>
         <select name="dataset_name" class="form-control" id="dataset_select">
             {%for dataset in datasets%}
-            <option value="{{dataset.name}}">{{dataset.name}}</option>
+            <option value="{{dataset.name}}">{{dataset.title}}</option>
             {%endfor%}
         </select>
     </div>

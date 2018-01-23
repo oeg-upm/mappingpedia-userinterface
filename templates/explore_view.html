@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block body %}
+<script>
+    function set_distribution_source(source){
+        if(source=='url'){
+            $("#distribution_url_div").show();
+            $("#distribution_url_radio").removeClass("btn-secondary");
+            $("#distribution_url_radio").addClass("btn-primary");
+
+            $("#distribution_file_div").hide();
+            $("#distribution_file_radio").removeClass("btn-primary");
+            $("#distribution_file_radio").addClass("btn-secondary");
+
+        }
+        else if(source=='file'){
+            $("#distribution_url_div").hide();
+            $("#distribution_url_radio").removeClass("btn-primary");
+            $("#distribution_url_radio").addClass("btn-secondary");
+
+            $("#distribution_file_div").show();
+            $("#distribution_file_radio").removeClass("btn-secondary");
+            $("#distribution_file_radio").addClass("btn-primary");
+
+        }
+    }
+
+$(document).ready(function(){
+    set_distribution_source('url');
+});
+
+
+
+</script>
+<br>
+<form method="POST" enctype="multipart/form-data"> {% csrf_token %}
+
+    <!--<div class="form-group">-->
+    <!--<label for="org">Organization Name</label>-->
+    <!--<input type="text" name="organization" class="form-control" id="org" placeholder="Enter the organization name">-->
+    <!--</div>-->
+
+
+
+
+
+
+
+    <div class="form-group" id="class_to_search_div">
+        <label for="class_to_search">Class to search</label>
+        <input type="text" name="class_to_search" class="form-control" id="class_to_search"
+               placeholder="Enter the schema.org class to search its instances, e.g., Cemetery">
+    </div>
+
+    <div class="form-group" id="no_of_results_div">
+        <label for="no_of_results">No of results</label>
+        <input type="text" name="no_of_results" class="form-control" id="no_of_results"
+               placeholder="Number of maximum results, e.g., 2">
+    </div>
+
+    <input type="submit" class="btn btn-primary"/>
+    </div>
+    </div>
+</form>
+
+
+{% endblock %}
+

@@ -68,10 +68,10 @@ $(document).ready(function(){
                     for(i=0;i<mappings.length;i++){
                         console.log(mappings[i]);
                         if(mappings[i]["name"] == null || mappings[i]["mappingDocumentTitle"].trim()==""){
-                            single_option = '<option value="'+mappings[i]["id"]+'">'+mappings[i]["id"]+'</option>\n';
+                            single_option = '<option value="'+mappings[i]["id"]+'">'+mappings[i]["id"] +' ('+mappings[i]["dateSubmitted"]+')' +'</option>\n';
                         }
                         else{
-                            single_option = '<option value="'+mappings[i]["id"]+'">'+mappings[i]["mappingDocumentTitle"]+'</option>\n';
+                            single_option = '<option value="'+mappings[i]["id"]+'">'+mappings[i]["mappingDocumentTitle"] +' ('+mappings[i]["dateSubmitted"]+')' +'</option>\n';
                         }
                         select_html += single_option;
                     }//for
@@ -122,7 +122,7 @@ $(document).ready(function(){
         <label for="dataset_select">Dataset</label><span id="num-of-datasets"></span>
         <select name="dataset" class="form-control" id="dataset_select">
             {%for dataset in datasets%}
-            <option value="{{dataset.id}}">{{dataset.id}}</option>
+            <option value="{{dataset.name}}">{{dataset.title}}</option>
             {%endfor%}
         </select>
     </div>

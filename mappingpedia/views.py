@@ -19,6 +19,34 @@ mappingpedia_engine_base_url = "http://mappingpedia-engine.linkeddata.es"
 organization_id = "zaragoza_test"
 
 
+class Explore(View):
+
+    def get(self, request):
+        error_or_org = organization_params_check(request)
+        if isinstance(error_or_org, list):
+            organizations = error_or_org
+        else:
+            return error_or_org
+        return render(request, 'explore_view.html', {'nav': 'explore', 'organizations': organizations})
+
+    def post(self, request):
+
+        url = url_join([mappingpedia_engine_base_url, 'ogd/instances'])
+        url += '?aClass=%s' % request.POST['class_to_search'].strip()
+        url += '&maximum_results=%s' % request.POST['no_of_results'].strip()
+
+        print "url = " + url
+        response = requests.get(url)
+
+        if response.status_code == 200:
+            json_response = json.loads(response.content)['results']
+            print "json_response = " + str(json_response)
+
+
+            return render(request, 'msg.html', {'msg': str(json_response)})
+        else:
+            return render(request, 'msg.html', {'msg': response.content})
+
 class Dataset(View):
 
     def get(self, request):
@@ -36,23 +64,38 @@ class Dataset(View):
             organization = organization_id
         url = url_join([mappingpedia_engine_base_url, 'datasets', organization])
         data = {}
+        if 'name' in request.POST and request.POST['name'].strip() != '':
+            data['datasetTitle'] = request.POST['name']
         if 'language' in request.POST and request.POST['language'].strip() != '':
             data['datasetLanguage'] = request.POST['language']
         if 'keywords' in request.POST and request.POST['keywords'].strip() != '':
             data['datasetKeywords'] = request.POST['keywords']
         if 'encoding' in request.POST and request.POST['encoding'].strip() != '':
             data['distribution_encoding'] = request.POST['encoding']
+        if 'source' in request.POST and request.POST['source'].strip() != '':
+            data['source'] = request.POST['source']
+        if 'version' in request.POST and request.POST['version'].strip() != '':
+            data['version'] = request.POST['version']
+        if 'author_name' in request.POST and request.POST['author_name'].strip() != '':
+            data['author_name'] = request.POST['author_name']
+        if 'author_email' in request.POST and request.POST['author_email'].strip() != '':
+            data['author_email'] = request.POST['author_email']
+        if 'maintainer_name' in request.POST and request.POST['maintainer_name'].strip() != '':
+            data['maintainer_name'] = request.POST['maintainer_name']
+        if 'maintainer_email' in request.POST and request.POST['maintainer_email'].strip() != '':
+            data['maintainer_email'] = request.POST['maintainer_email']
+        if 'temporal' in request.POST and request.POST['temporal'].strip() != '':
+            data['temporal'] = request.POST['temporal']
+        if 'spatial' in request.POST and request.POST['spatial'].strip() != '':
+            data['spatial'] = request.POST['spatial']
+
+
         if 'url' in request.POST and request.POST['url'].strip() != '':
             distribution_download_url = request.POST['url']
             data['distribution_download_url'] = distribution_download_url
-            if 'name' in request.POST and request.POST['name'].strip() != '':
-                data['datasetTitle'] = request.POST['name']
             response = requests.post(url, data)
         elif 'file' in request.FILES:
             distribution_file = request.FILES['file']
-            if 'name' in request.POST and request.POST['name'].strip() != '':
-                print 'name is sent: %s' % request.POST['name']
-                data['datasetTitle'] = request.POST['name']
             response = requests.post(url, files=[('distribution_file', distribution_file)], data=data)
         else:
             print "ERROR"
@@ -89,9 +132,11 @@ class Mapping(View):
 
         if 'mapping_file_url' in request.POST and request.POST['mapping_file_url'].strip() != '':
             mapping_file_url = request.POST['mapping_file_url']
-            url = url_join([mappingpedia_engine_base_url, 'mappings', organization, dataset_name])
+            #url = url_join([mappingpedia_engine_base_url, 'mappings', organization, dataset_name])
+            url = url_join([mappingpedia_engine_base_url, 'mappings', organization])
             data = {
                 "mappingDocumentDownloadURL": mapping_file_url,
+                "dataset_id": dataset_name
             }
             response = requests.post(url, data)
             print "the url"
@@ -99,11 +144,13 @@ class Mapping(View):
         else:
             mapping_file = request.FILES['mapping_file']
             print mapping_file
-            url = url_join([mappingpedia_engine_base_url, 'mappings', organization, dataset_name])
+            #url = url_join([mappingpedia_engine_base_url, 'mappings', organization, dataset_name])
+            url = url_join([mappingpedia_engine_base_url, 'mappings', organization])
             print "the url"
             print url
-            #response = requests.post(url, files=[('mappingFile', mapping_file)], data={'ckan_package_id': dataset_name})
-            response = requests.post(url, files=[('mappingFile', mapping_file)])
+            response = requests.post(url, files=[('mappingFile', mapping_file)], data={'dataset_id': dataset_name})
+            #response = requests.post(url, files=[('mappingFile', mapping_file)])
+
         if response.status_code == 200:
             print response.content
             download_url = json.loads(response.content)['mapping_document_download_url']
@@ -142,6 +189,8 @@ class Execute(View):
         distribution_id = request.POST['distribution']
         mapping_id = request.POST['mapping']
         distribution = get_distribution(distribution_id)
+
+
         if distribution is None:
             return render(request, 'msg.html', {'msg': 'error: getting distribution information from CKAN'})
         if distribution['format'].lower().strip() in ['json', 'xml']:
@@ -158,6 +207,8 @@ class Execute(View):
             "dataset_id": dataset_id,
             "distribution_download_url": distribution['url'],
             "mapping_language": language,
+
+
         }
         print "data: "
         print data
@@ -529,10 +580,12 @@ def generate_mappings(request):
             print mapping_file
             mapping_file_f = open(mapping_file)
             print mapping_file_f
-            url = url_join([mappingpedia_engine_base_url, 'mappings', organization_name, dataset])
+            #url = url_join([mappingpedia_engine_base_url, 'mappings', organization_name, dataset])
+            url = url_join([mappingpedia_engine_base_url, 'mappings', organization_name])
+
             print "the url to upload mapping"
             print url
-            response = requests.post(url, files=[('mappingFile', mapping_file_f)])
+            response = requests.post(url, files=[('mappingFile', mapping_file_f)], data={'dataset_id': dataset})
             if response.status_code == 200:
                 print response.content
                 download_url = json.loads(response.content)['mapping_document_download_url']
