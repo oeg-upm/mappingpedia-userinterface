@@ -188,6 +188,8 @@ class Execute(View):
         dataset_id = request.POST['dataset']
         distribution_id = request.POST['distribution']
         mapping_id = request.POST['mapping']
+        use_cache = request.POST['use_cache']
+
         distribution = get_distribution(distribution_id)
 
 
@@ -198,7 +200,7 @@ class Execute(View):
         else:
             language = 'r2rml'
         print "the language is: %s" % language
-        url = url_join([mappingpedia_engine_base_url, 'executions2'])
+        url = url_join([mappingpedia_engine_base_url, 'executions'])
         print url
         data = {
             # "mapping_document_download_url": request.POST['mapping_document_download_url'],
@@ -207,7 +209,7 @@ class Execute(View):
             "dataset_id": dataset_id,
             "distribution_download_url": distribution['url'],
             "mapping_language": language,
-
+            "use_cache": use_cache,
 
         }
         print "data: "
