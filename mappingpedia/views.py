@@ -200,7 +200,7 @@ class Execute(View):
         else:
             language = 'r2rml'
         print "the language is: %s" % language
-        url = url_join([mappingpedia_engine_base_url, 'executions'])
+        url = url_join([mappingpedia_engine_base_url, 'executions2'])
         print url
         data = {
             # "mapping_document_download_url": request.POST['mapping_document_download_url'],
