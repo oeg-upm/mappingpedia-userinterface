@@ -219,7 +219,11 @@ class Execute(View):
             result_url = json.loads(response.content)['mapping_execution_result_download_url']
             print "result : "
             print response.content
-            return render(request, 'msg.html', {'msg': 'Execution results can be found here %s'%result_url})
+            #return render(request, 'msg.html', {'msg': 'Execution results can be found here %s'%result_url})
+            return render(request, 'msg.html',
+                      {'msg': 'Execution results can be found here ', 'hreftitle': 'download url',
+                       'hreflink': result_url})
+
         else:
             return render(request, 'msg.html', {'msg': 'error from mappingpedia-engine API: '+response.content})
 
