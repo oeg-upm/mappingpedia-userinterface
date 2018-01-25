@@ -68,6 +68,10 @@ class Dataset(View):
             data['datasetTitle'] = request.POST['name']
         else:
             return render(request, 'msg.html', {'msg': 'error: Dataset title can not be empty'})
+        if 'description' in request.POST and request.POST['description'].strip() != '':
+            data['dataset_description'] = request.POST['description']
+        else:
+            return render(request, 'msg.html', {'msg': 'error: Dataset description can not be empty'})
         if 'language' in request.POST and request.POST['language'].strip() != '':
             data['datasetLanguage'] = request.POST['language']
         if 'keywords' in request.POST and request.POST['keywords'].strip() != '':
