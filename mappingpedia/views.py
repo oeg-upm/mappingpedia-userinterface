@@ -18,6 +18,50 @@ mappingpedia_engine_base_url = "http://mappingpedia-engine.linkeddata.es"
 #mappingpedia_engine_base_url = "http://127.0.0.1:80/"
 organization_id = "zaragoza_test"
 
+class Distribution(View):
+
+    def get(self, request):
+        error_or_org = organization_params_check(request)
+        if isinstance(error_or_org, list):
+            organizations = error_or_org
+        else:
+            return error_or_org
+        return render(request, 'distribution_view.html', {'nav': 'distribution', 'organizations': organizations})
+
+    def post(self, request):
+        if 'organization' not in request.POST or request.POST['organization'].strip() != '':
+            organization = request.POST['organization']
+        else:
+            organization = organization_id
+
+        if 'dataset_name' in request.POST:
+            dataset_name = request.POST['dataset_name']
+        else:
+            return render(request, 'msg.html', {'msg': 'dataset name should not be empty'})
+
+        url = url_join([mappingpedia_engine_base_url, 'distributions', organization, dataset_name])
+        print "the url"
+        print url
+
+        if 'distribution_download_url' in request.POST and request.POST['distribution_download_url'].strip() != '':
+            distribution_download_url = request.POST['distribution_download_url']
+            data = {
+                "distribution_download_url": distribution_download_url
+            }
+            files = {}
+            #response = requests.post(url, data)
+        else:
+            distribution_file = request.FILES['distribution_file']
+            data = {}
+            files = [('distribution_file', distribution_file)]
+            #response = requests.post(url, files=[('distribution_file', distribution_file)])
+
+        response = requests.post(url, files, data)
+
+        if response.status_code == 200:
+            return render(request, 'msg.html', {'msg': 'Distribution has been successfully added.'})
+        else:
+            return render(request, 'msg.html', {'msg': response.content})
 
 class Explore(View):
 
@@ -41,7 +85,6 @@ class Explore(View):
         if response.status_code == 200:
             json_response = json.loads(response.content)['results']
             print "json_response = " + str(json_response)
-
 
             return render(request, 'msg.html', {'msg': str(json_response)})
         else:
