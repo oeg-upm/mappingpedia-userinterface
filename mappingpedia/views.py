@@ -138,7 +138,6 @@ class Mapping(View):
 
         if 'mapping_file_url' in request.POST and request.POST['mapping_file_url'].strip() != '':
             mapping_file_url = request.POST['mapping_file_url']
-            #url = url_join([mappingpedia_engine_base_url, 'mappings', organization, dataset_name])
             url = url_join([mappingpedia_engine_base_url, 'mappings', organization])
             data = {
                 "mappingDocumentDownloadURL": mapping_file_url,
@@ -150,17 +149,14 @@ class Mapping(View):
         else:
             mapping_file = request.FILES['mapping_file']
             print mapping_file
-            #url = url_join([mappingpedia_engine_base_url, 'mappings', organization, dataset_name])
             url = url_join([mappingpedia_engine_base_url, 'mappings', organization])
             print "the url"
             print url
             response = requests.post(url, files=[('mappingFile', mapping_file)], data={'dataset_id': dataset_name})
-            #response = requests.post(url, files=[('mappingFile', mapping_file)])
 
         if response.status_code == 200:
             print response.content
             download_url = json.loads(response.content)['mapping_document_download_url']
-            #return render(request, 'msg.html', {'msg': 'mappings has been registered with download_url: '+download_url})
             return render(request, 'msg.html',
                           {'msg': 'mappings has been registered with ', 'hreftitle': 'download url',
                            'hreflink': download_url})
@@ -182,6 +178,8 @@ class Execute(View):
 
     def post(self, request):
         print "in execution"
+        print "distributions: "
+        print request.POST.getlist('distribution')
         if 'organization' not in request.POST:
             return render(request, 'msg.html', {'msg': 'error: organization is not passed'})
         if 'dataset' not in request.POST:
@@ -192,31 +190,20 @@ class Execute(View):
             return render(request, 'msg.html', {'msg': 'error: mapping is not passed'})
         organization_id = request.POST['organization']
         dataset_id = request.POST['dataset']
-        distribution_id = request.POST['distribution']
+        distribution_ids = request.POST.getlist('distribution')
         mapping_id = request.POST['mapping']
         use_cache = request.POST['use_cache']
-
-        distribution = get_distribution(distribution_id)
-
-
-        if distribution is None:
+        distributions = [get_distribution(d) for d in distribution_ids]
+        if len(distributions) == 0:
             return render(request, 'msg.html', {'msg': 'error: getting distribution information from CKAN'})
-        if distribution['format'].lower().strip() in ['json', 'xml']:
-            language = 'rml'
-        else:
-            language = 'r2rml'
-        print "the language is: %s" % language
         url = url_join([mappingpedia_engine_base_url, 'executions2'])
         print url
         data = {
-            # "mapping_document_download_url": request.POST['mapping_document_download_url'],
             "mapping_document_id": mapping_id,
             "organization_id":  organization_id,
             "dataset_id": dataset_id,
-            "distribution_download_url": distribution['url'],
-            "mapping_language": language,
+            "distribution_download_url": ",".join([d['url'] for d in distributions]),
             "use_cache": use_cache,
-
         }
         print "data: "
         print data
@@ -225,11 +212,9 @@ class Execute(View):
             result_url = json.loads(response.content)['mapping_execution_result_download_url']
             print "result : "
             print response.content
-            #return render(request, 'msg.html', {'msg': 'Execution results can be found here %s'%result_url})
             return render(request, 'msg.html',
                       {'msg': 'Execution results can be found here ', 'hreftitle': 'download url',
                        'hreflink': result_url})
-
         else:
             return render(request, 'msg.html', {'msg': 'error from mappingpedia-engine API: '+response.content})
 
@@ -275,8 +260,6 @@ def get_datasets(request):
         organization = request.GET['organization'].strip()
         print 'organization %s' % organization
         datasets = get_datasets_for_organization(organization, only_contains_distributions=False)
-        #print 'datasets: '
-        #print datasets
         return JsonResponse({'datasets': datasets})
     else:
         print 'not in organization'
@@ -299,16 +282,6 @@ def get_datasets_for_organization(organization, only_contains_distributions=Fals
                 datasets = [d for d in datasets_elements if len(get_distributions_for_dataset(d['title'], only_original=True))>0]
             else:
                 datasets = [d for d in datasets_elements]
-
-            # if only_contains_distributions:
-            #     datasets = [d['title'] for d in datasets_elements if len(get_distributions_for_dataset(d['title'], only_original=True))>0]
-            # else:
-            #     datasets = [d['title'] for d in datasets_elements]
-                # ppp = [d for d in datasets_elements[:10]]
-                # for p in ppp:
-                #     print "printing datasets: "
-                #     # print p
-                #     print json.dumps(p, indent=4, sort_keys=True)
             return datasets
         else:
             print "response: " + str(response.content)
@@ -538,8 +511,6 @@ def generate_rml_mappings(file_name, entity_class, entity_column, mappings, file
 def generate_mappings(request):
     print request.POST
     mappings = []
-    # if 'file_name' not in request.POST:
-    #     return JsonResponse({'error': 'file_name is not passed'})
     if 'entity_class' not in request.POST:
         return JsonResponse({'error': 'entity_class is not passed'})
     if 'entity_column' not in request.POST:
@@ -549,7 +520,6 @@ def generate_mappings(request):
     if 'distribution' not in request.POST:
         return JsonResponse({'error': 'distribution is not passed'})
     distribution = request.POST['distribution'].strip()
-    # file_name = request.POST['file_name'].strip()
     entity_class = request.POST['entity_class'].strip()
     entity_column = request.POST['entity_column'].strip()
     dataset = request.POST['dataset'].strip()
@@ -592,7 +562,6 @@ def generate_mappings(request):
             print mapping_file
             mapping_file_f = open(mapping_file)
             print mapping_file_f
-            #url = url_join([mappingpedia_engine_base_url, 'mappings', organization_name, dataset])
             url = url_join([mappingpedia_engine_base_url, 'mappings', organization_name])
 
             print "the url to upload mapping"
@@ -601,7 +570,6 @@ def generate_mappings(request):
             if response.status_code == 200:
                 print response.content
                 download_url = json.loads(response.content)['mapping_document_download_url']
-                # return render(request, 'msg.html', {'msg': 'mappings has been registered with download_url: ' + download_url})
                 return render(request, 'msg.html',
                               {'msg': 'mappings has been registered with', 'hreftitle': 'download url',
                                'hreflink': download_url})

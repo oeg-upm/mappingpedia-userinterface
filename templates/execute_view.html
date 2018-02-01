@@ -38,18 +38,21 @@ $(document).ready(function(){
                     var i;
                     var distributions = data["distributions"];
                     $("#num-of-distributions").html(' ('+distributions.length+')');
-                    var select_html='';
+                    var dist_checks_html='';
                     for(i=0;i<distributions.length;i++){
                         console.log(distributions[i]);
                         if(distributions[i]["name"] == null || distributions[i]["name"].trim()==""){
-                            single_option = '<option value="'+distributions[i]["id"]+'">'+distributions[i]["id"].substring(0,5)+' ('+distributions[i]["url"]+')'+'</option>\n';
+                            //single_option = '<option value="'+distributions[i]["id"]+'">'+distributions[i]["id"].substring(0,5)+' ('+distributions[i]["url"]+')'+'</option>\n';
+                            single_option = '<input type="checkbox" name="distribution" value="'+distributions[i]["id"]+'"/>'+distributions[i]["id"].substring(0,5)+' ('+distributions[i]["url"]+')<br>';
+
                         }
                         else{
-                            single_option = '<option value="'+distributions[i]["id"]+'">'+distributions[i]["name"]+'</option>\n';
+                            single_option = '<input type="checkbox" name="distribution" value="'+distributions[i]["id"]+'"/>'+distributions[i]["name"]+'<br>';
+                            //single_option = '<option value="'+distributions[i]["id"]+'">'+distributions[i]["name"]+'</option>\n';
                         }
-                        select_html += single_option;
+                        dist_checks_html += single_option;
                     }//for
-                    $("#distribution").html(select_html);
+                    $("#distributions-div").html(dist_checks_html);
                 }
             });//getJSON
             $.getJSON("get_mappings?dataset="+dataset, function(data){
@@ -128,9 +131,8 @@ $(document).ready(function(){
     </div>
 
     <div class="form-group">
-        <label for="distribution">Distribution (File)</label><span id="num-of-distributions"></span>
-        <select name="distribution" class="form-control" id="distribution">
-        </select>
+        <label >Distributions (Files)</label><span id="num-of-distributions"></span>
+        <div id="distributions-div"> </div>
     </div>
 
     <div class="form-group">
