@@ -137,7 +137,25 @@ class Dataset(View):
             data['temporal'] = request.POST['temporal']
         if 'spatial' in request.POST and request.POST['spatial'].strip() != '':
             data['spatial'] = request.POST['spatial']
+        if 'access_right' in request.POST and request.POST['access_right'].strip() != '':
+            data['access_right'] = request.POST['access_right']
+        if 'provenance' in request.POST and request.POST['provenance'].strip() != '':
+            data['provenance'] = request.POST['provenance']
 
+        if 'was_attributed_to' in request.POST and request.POST['was_attributed_to'].strip() != '':
+            data['was_attributed_to'] = request.POST['was_attributed_to']
+        if 'was_generated_by' in request.POST and request.POST['was_generated_by'].strip() != '':
+            data['was_generated_by'] = request.POST['was_generated_by']
+        if 'was_derived_from' in request.POST and request.POST['was_derived_from'].strip() != '':
+            data['was_derived_from'] = request.POST['was_derived_from']
+        if 'specialization_of' in request.POST and request.POST['specialization_of'].strip() != '':
+            data['specialization_of'] = request.POST['specialization_of']
+        if 'had_primary_source' in request.POST and request.POST['had_primary_source'].strip() != '':
+            data['had_primary_source'] = request.POST['had_primary_source']
+        if 'was_revision_of' in request.POST and request.POST['was_revision_of'].strip() != '':
+            data['was_revision_of'] = request.POST['was_revision_of']
+        if 'was_influenced_by' in request.POST and request.POST['was_influenced_by'].strip() != '':
+            data['was_influenced_by'] = request.POST['was_influenced_by']
 
         if 'url' in request.POST and request.POST['url'].strip() != '':
             distribution_download_url = request.POST['url']
@@ -239,7 +257,7 @@ class Execute(View):
         distributions = [get_distribution(d) for d in distribution_ids]
         if len(distributions) == 0:
             return render(request, 'msg.html', {'msg': 'error: getting distribution information from CKAN'})
-        url = url_join([mappingpedia_engine_base_url, 'executions2'])
+        url = url_join([mappingpedia_engine_base_url, 'executions'])
         print url
         data = {
             "mapping_document_id": mapping_id,
