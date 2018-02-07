@@ -32,6 +32,7 @@ urlpatterns = [
     url(r'autocomplete', views.autocomplete),
     url(r'editor', views.editor),
     url(r'get_properties', views.get_properties),
-    url('', views.home),
+    url(r'platform', views.Dataset.as_view()),
+    url('', views.Dataset.as_view()),
 
 ]
