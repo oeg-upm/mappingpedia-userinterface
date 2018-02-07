@@ -18,5 +18,3 @@ class Views_Test(TestCase):
         client = Client()
         response = client.get('/execute')
         self.assertEqual(response.status_code, 200, msg="error in execute page")
-
-

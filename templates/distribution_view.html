@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+{% block body %}
+<script>
+    var datasets = []
+    function set_distribution_source(source){
+        if(source=='url'){
+            $("#distribution_download_url_div").show();
+            $("#distribution_download_url_radio").removeClass("btn-secondary");
+            $("#distribution_downloadurl_radio").addClass("btn-primary");
+
+            $("#distribution_file_div").hide();
+            $("#distribution_file_radio").removeClass("btn-primary");
+            $("#distribution_file_radio").addClass("btn-secondary");
+
+
+        }
+        else if(source=='file'){
+            $("#distribution_download_url_div").hide();
+            $("#distribution_download_url_radio").removeClass("btn-primary");
+            $("#distribution_download_url_radio").addClass("btn-secondary");
+
+            $("#distribution_file_div").show();
+            $("#distribution_file_radio").removeClass("btn-secondary");
+            $("#distribution_file_radio").addClass("btn-primary");
+
+
+        }
+            $("#submit-button").show();
+
+    }
+
+$(document).ready(function(){
+    set_distribution_source('url');
+
+    $("#organization").change(function() {
+        console.log('dataset select value is changed to: '+$("#organization").val());
+        $.getJSON("get_datasets?organization="+$("#organization").val(), function(data){
+            datasets = data["datasets"]
+            $("#num-of-datasets").html(' ('+datasets.length+')');
+            var options_html = '';
+            var i
+            var single_option;
+            for(i=0;i<datasets.length;i++){
+                single_option = '<option value="'+datasets[i].name+'">'+datasets[i].title+'</option>\n';
+                options_html += single_option;
+            }//for
+             $("#dataset_select").html(options_html);
+             $("#dataset_select").change();
+        });//getJSON
+    });//change
+
+    $("#organization").change();
+
+    $("#go-to-editor-button").click(function(){
+        if($("#dataset_select").val() && $("#distribution").val()){
+            window.location.href = 'editor?dataset='+$("#dataset_select").val()+'&distribution='+$("#distribution").val()+'&download_url=';
+        }
+        else{
+            alert('Dataset cannot be empty');
+        }
+    });
+
+
+    $("#dataset_select").change(function() {
+        console.log('dataset select value is changed to: '+$("#dataset_select").val());
+        var dataset = $("#dataset_select").val();
+            $.getJSON("get_distributions?dataset="+dataset, function(data){
+                if("error" in data){
+                    alert("error getting data");
+                }
+                else{
+                    var single_option;
+                    var i;
+                    var distributions = data["distributions"];
+                    var select_html='';
+                    for(i=0;i<distributions.length;i++){
+                        console.log(distributions[i]);
+                        if(distributions[i]["name"] == null || distributions[i]["name"].trim()==""){
+                            single_option = '<option value="'+distributions[i]["id"]+'">'+distributions[i]["id"].substring(0,5)+' ('+distributions[i]["url"]+')'+'</option>\n';
+                        }
+                        else{
+                            single_option = '<option value="'+distributions[i]["id"]+'">'+distributions[i]["id"].substring(0,5)+' ('+distributions[i]["name"]+')'+'</option>\n';
+                        }
+                        select_html += single_option;
+                    }
+                    $("#distribution").html(select_html);
+                }
+            });
+    });//change
+
+});//ready
+
+
+
+
+
+
+</script>
+<br>
+<form method="POST" enctype="multipart/form-data"> {% csrf_token %}
+
+    <!--<div class="form-group">-->
+    <!--<label for="org">Organization Name</label>-->
+    <!--<input type="text" name="organization" class="form-control" id="org" placeholder="Enter the organization name">-->
+    <!--</div>-->
+
+    {%if organizations|length == 1 %}
+    <h5>Organization: {{organizations.0}}</h5>
+    <div class="form-group" hidden>
+        <label for="organization">Organization Name</label>
+        <select name="organization" class="form-control" id="organization">
+            {%for organization in organizations%}
+            <option value="{{organization}}">{{organization}}</option>
+            {%endfor%}
+        </select>
+    </div>
+
+    {%else%}
+    <div class="form-group">
+        <label for="organization">Organization Name</label>
+        <select name="organization" class="form-control" id="organization">
+            {%for organization in organizations%}
+            <option value="{{organization}}">{{organization}}</option>
+            {%endfor%}
+        </select>
+    </div>
+
+    {%endif%}
+
+    <div class="form-group">
+        <label for="dataset_select">Dataset</label><span id="num-of-datasets"></span>
+        <select name="dataset_name" class="form-control" id="dataset_select">
+            {%for dataset in datasets%}
+            <option value="{{dataset.name}}">{{dataset.title}}</option>
+            {%endfor%}
+        </select>
+    </div>
+
+
+
+
+    <!--<div class="form-group">-->
+        <!--<label for="dataset-id">Dataset ID</label>-->
+        <!--<input type="text" name="dataset_id" class="form-control" id="dataset-id" placeholder="Enter the dataset ID">-->
+    <!--</div>-->
+
+    <div class="form-group">
+        <div class="btn-group" role="group" aria-label="Basic example" data-toggle="buttons-radio">
+            <button type="button" class="btn btn-primary" id="distribution_url_radio"
+                    onclick="set_distribution_source('url')">Distribution URL
+            </button>
+            <button type="button" class="btn btn-secondary" id="distribution_file_radio"
+                    onclick="set_distribution_source('file')">Distribution File
+            </button>
+
+        </div>
+    </div>
+
+    <div class="form-group" id="distribution_download_url_div">
+        <label for="distribution_download_url">Distribution Download URL</label>
+        <input type="url" name="distribution_download_url" class="form-control" id="distribution_download_url"
+               placeholder="Enter the distribution file download url">
+    </div>
+
+    <div class="form-group" id="distribution_file_div">
+        <label for="distribution_file">Distribution File</label>
+        <input type="file" name="distribution_file" class="form-control-file" id="distribution_file">
+    </div>
+
+
+
+    <input type="submit" class="btn btn-primary" id="submit-button"/>
+
+
+</form>
+
+{% endblock %}
+

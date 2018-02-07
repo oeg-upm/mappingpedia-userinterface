@@ -24,6 +24,7 @@ urlpatterns = [
     url(r'get_mappings', views.get_mappings),
     url(r'generate_mappings', views.generate_mappings),
     url(r'dataset', views.Dataset.as_view()),
+    url(r'distribution', views.Distribution.as_view()),
     url(r'mapping', views.Mapping.as_view()),
     url(r'execute', views.Execute.as_view()),
     url(r'explore', views.Explore.as_view()),
@@ -31,6 +32,7 @@ urlpatterns = [
     url(r'autocomplete', views.autocomplete),
     url(r'editor', views.editor),
     url(r'get_properties', views.get_properties),
-    url('', views.home),
+    url(r'platform', views.Dataset.as_view()),
+    url('', views.Dataset.as_view()),
 
 ]

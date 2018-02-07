@@ -18,6 +18,50 @@ mappingpedia_engine_base_url = "http://mappingpedia-engine.linkeddata.es"
 #mappingpedia_engine_base_url = "http://127.0.0.1:80/"
 organization_id = "zaragoza_test"
 
+class Distribution(View):
+
+    def get(self, request):
+        error_or_org = organization_params_check(request)
+        if isinstance(error_or_org, list):
+            organizations = error_or_org
+        else:
+            return error_or_org
+        return render(request, 'distribution_view.html', {'nav': 'distribution', 'organizations': organizations})
+
+    def post(self, request):
+        if 'organization' not in request.POST or request.POST['organization'].strip() != '':
+            organization = request.POST['organization']
+        else:
+            organization = organization_id
+
+        if 'dataset_name' in request.POST:
+            dataset_name = request.POST['dataset_name']
+        else:
+            return render(request, 'msg.html', {'msg': 'dataset name should not be empty'})
+
+        url = url_join([mappingpedia_engine_base_url, 'distributions', organization, dataset_name])
+        print "the url"
+        print url
+
+        if 'distribution_download_url' in request.POST and request.POST['distribution_download_url'].strip() != '':
+            distribution_download_url = request.POST['distribution_download_url']
+            data = {
+                "distribution_download_url": distribution_download_url
+            }
+            files = {}
+            #response = requests.post(url, data)
+        else:
+            distribution_file = request.FILES['distribution_file']
+            data = {}
+            files = [('distribution_file', distribution_file)]
+            #response = requests.post(url, files=[('distribution_file', distribution_file)])
+
+        response = requests.post(url, files, data)
+
+        if response.status_code == 200:
+            return render(request, 'msg.html', {'msg': 'Distribution has been successfully added.'})
+        else:
+            return render(request, 'msg.html', {'msg': response.content})
 
 class Explore(View):
 
@@ -41,7 +85,6 @@ class Explore(View):
         if response.status_code == 200:
             json_response = json.loads(response.content)['results']
             print "json_response = " + str(json_response)
-
 
             return render(request, 'msg.html', {'msg': str(json_response)})
         else:
@@ -94,7 +137,25 @@ class Dataset(View):
             data['temporal'] = request.POST['temporal']
         if 'spatial' in request.POST and request.POST['spatial'].strip() != '':
             data['spatial'] = request.POST['spatial']
+        if 'access_right' in request.POST and request.POST['access_right'].strip() != '':
+            data['access_right'] = request.POST['access_right']
+        if 'provenance' in request.POST and request.POST['provenance'].strip() != '':
+            data['provenance'] = request.POST['provenance']
 
+        if 'was_attributed_to' in request.POST and request.POST['was_attributed_to'].strip() != '':
+            data['was_attributed_to'] = request.POST['was_attributed_to']
+        if 'was_generated_by' in request.POST and request.POST['was_generated_by'].strip() != '':
+            data['was_generated_by'] = request.POST['was_generated_by']
+        if 'was_derived_from' in request.POST and request.POST['was_derived_from'].strip() != '':
+            data['was_derived_from'] = request.POST['was_derived_from']
+        if 'specialization_of' in request.POST and request.POST['specialization_of'].strip() != '':
+            data['specialization_of'] = request.POST['specialization_of']
+        if 'had_primary_source' in request.POST and request.POST['had_primary_source'].strip() != '':
+            data['had_primary_source'] = request.POST['had_primary_source']
+        if 'was_revision_of' in request.POST and request.POST['was_revision_of'].strip() != '':
+            data['was_revision_of'] = request.POST['was_revision_of']
+        if 'was_influenced_by' in request.POST and request.POST['was_influenced_by'].strip() != '':
+            data['was_influenced_by'] = request.POST['was_influenced_by']
 
         if 'url' in request.POST and request.POST['url'].strip() != '':
             distribution_download_url = request.POST['url']
@@ -196,7 +257,7 @@ class Execute(View):
         distributions = [get_distribution(d) for d in distribution_ids]
         if len(distributions) == 0:
             return render(request, 'msg.html', {'msg': 'error: getting distribution information from CKAN'})
-        url = url_join([mappingpedia_engine_base_url, 'executions2'])
+        url = url_join([mappingpedia_engine_base_url, 'executions'])
         print url
         data = {
             "mapping_document_id": mapping_id,
