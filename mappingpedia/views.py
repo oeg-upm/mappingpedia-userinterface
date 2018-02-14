@@ -301,7 +301,8 @@ def execution_callback(request, id):
     print "request post: "
     print request.POST
     print type(request.POST)
-
+    print "data: "
+    print request.body
     json_response = json.loads(request.body)
 
     e = ExecutionProgress.objects.get(id=id)
