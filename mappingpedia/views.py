@@ -304,8 +304,6 @@ def execution_callback(request, id):
     print request.POST.dict()
     print "body: "
     print request.body
-    print "data: "
-    print request.data
     json_response = json.loads(request.POST)
     print "json response: "
     print json_response
