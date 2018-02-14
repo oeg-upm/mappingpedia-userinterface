@@ -266,6 +266,8 @@ class Execute(View):
         e.save()
 
         last_mile_name = request.build_absolute_uri().split('/')[-1]
+        print "absolute uri: %s" % request.build_absolute_uri()
+        print "last_mile: %s" % last_mile_name
         callback_url = request.build_absolute_uri()[:-1-len(last_mile_name)] + '/execution_callback/'+str(e.id)
         print "call back: %s" % callback_url
 
