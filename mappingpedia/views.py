@@ -693,9 +693,11 @@ def get_required_headers():
     return headers
 
 
-def clear_organization(request):
+def clear_session(request):
     if 'organization' in request.session:
         del request.session['organization']
+    if 'user' in request.session:
+        del request.session['username']
     return render(request, 'msg.html', {'msg': 'organization value is removed from your session'})
 
 
@@ -720,19 +722,24 @@ def valid_organization(organization):
 
 
 def organization_params_check(request):
-    if 'organization' in request.GET:
+    # setting a new organization and user for the session
+    if 'organization' in request.GET and 'username' in request.GET:
         organization = request.GET['organization'].strip()
         organizations = [organization]
-        if valid_organization(organization):
+        if request.GET['username'].strip() == "":  # user is empty
+            return render(request, 'msg.html', {'msg': 'invalid username'})
+        elif valid_organization(organization):  # not empty user + valid organization
             request.session['organization'] = organization
+            request.session['username'] = request.GET['username']
         else:  # invalid organization
             clear_organization(request)
             return render(request, 'msg.html', {'msg': 'invalid organization'})
-    elif 'organization' in request.session:
+    elif 'organization' in request.session and 'username' in request.session:
         organizations = [request.session['organization']]
     else:
         if 'auth' in os.environ and os.environ['auth'].lower() == 'true':
-            return render(request, 'msg.html', {'msg': 'organization should be passed'})
+            return render(request, 'msg.html', {'msg': 'organization and username should be passed'})
         else:
             organizations = get_organizations()
+            request.session['username'] = 'guest'
     return organizations

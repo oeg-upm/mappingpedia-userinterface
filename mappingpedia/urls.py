@@ -18,7 +18,7 @@ from django.contrib import admin
 import views
 
 urlpatterns = [
-    url(r'clear_organization', views.clear_organization),
+    url(r'clear_session', views.clear_session),
     url(r'get_datasets', views.get_datasets),
     url(r'get_distributions', views.get_distributions),
     url(r'get_mappings', views.get_mappings),
