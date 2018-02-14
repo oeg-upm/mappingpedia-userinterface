@@ -265,6 +265,8 @@ class Execute(View):
         e = ExecutionProgress(status=ExecutionProgress.STATUS_INPROGRESS, user=request.session['username'])
         e.save()
 
+        print "META: "
+        print request.META
         last_mile_name = request.build_absolute_uri().split('/')[-1]
         print "absolute uri: %s" % request.build_absolute_uri()
         print "last_mile: %s" % last_mile_name
