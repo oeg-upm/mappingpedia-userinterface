@@ -14,6 +14,6 @@ class ExecutionProgress(models.Model):
     status = models.CharField(max_length=50, choices=STATUS_CHOICES)
     user = models.CharField(max_length=250)
     timestamp = models.DateTimeField(default=datetime.now())
-    result_page = models.URLField(max_length=250)
+    result_url = models.URLField(max_length=250, default='')
 
 

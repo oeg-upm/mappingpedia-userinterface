@@ -18,6 +18,8 @@ from django.contrib import admin
 import views
 
 urlpatterns = [
+    url(r'execution_callback/(?P<id>\d+)', views.execution_callback),
+    url(r'execution_list', views.execution_list),
     url(r'clear_session', views.clear_session),
     url(r'get_datasets', views.get_datasets),
     url(r'get_distributions', views.get_distributions),
