@@ -301,10 +301,13 @@ def execution_callback(request, id):
     print "request post: "
     print request.POST
     print type(request.POST)
-    print "data: "
+    print "body: "
     print request.body
-    json_response = json.loads(request.body)
-
+    print "data: "
+    print request.data
+    json_response = json.loads(request.POST)
+    print "json response: "
+    print json_response
     e = ExecutionProgress.objects.get(id=id)
     notification = json_response['notification']
     if notification['status_code'] == 200:
