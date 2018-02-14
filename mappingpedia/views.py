@@ -266,11 +266,12 @@ class Execute(View):
         e.save()
 
         print "META: "
-        print request.META
-        last_mile_name = request.build_absolute_uri().split('/')[-1]
-        print "absolute uri: %s" % request.build_absolute_uri()
+        print request.META['HTTP_REFERER']
+
+
+        last_mile_name = request.META['HTTP_REFERER'].split('/')[-1]
         print "last_mile: %s" % last_mile_name
-        callback_url = request.build_absolute_uri()[:-1-len(last_mile_name)] + '/execution_callback/'+str(e.id)
+        callback_url = request.META['HTTP_REFERER'][:-1-len(last_mile_name)] + '/execution_callback/'+str(e.id)
         print "call back: %s" % callback_url
 
         data = {
