@@ -314,7 +314,9 @@ def execution_callback(request, id):
 
 
 def execution_list(request):
-    pass
+    execution_results_list = ExecutionProgress.objects.filter(user = request.session['username'])
+
+    return render(request, 'execution_list.html', {'executions': execution_results_list})
 
 
 def home(request):
