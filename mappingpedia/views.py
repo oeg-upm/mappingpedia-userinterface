@@ -300,7 +300,8 @@ class Execute(View):
 def execution_callback(request, id):
     print "request post: "
     print request.POST
-    print type(request.POST)
+    print "request post as dict: "
+    print request.POST.dict()
     print "body: "
     print request.body
     print "data: "
