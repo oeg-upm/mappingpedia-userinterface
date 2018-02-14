@@ -8,6 +8,9 @@ class ExecutionProgress(models.Model):
         ('success', 'Success'),
         ('fail', 'Fail'),
     )
+    STATUS_INPROGRESS = 'inprogress'
+    STATUS_SUCCESS = 'success'
+    STATUS_FAIL = 'fail'
     status = models.CharField(max_length=50, choices=STATUS_CHOICES)
     user = models.CharField(max_length=250)
     timestamp = models.DateTimeField(default=datetime.now())
