@@ -10,6 +10,8 @@ import random
 import string
 from rmljson import get_json_path
 from settings import BASE_DIR
+from models import ExecutionProgress
+
 
 ckan_base_url = 'http://83.212.100.226/ckan/api/'
 mappingpedia_engine_base_url = "http://mappingpedia-engine.linkeddata.es"
@@ -17,6 +19,7 @@ mappingpedia_engine_base_url = "http://mappingpedia-engine.linkeddata.es"
 #mappingpedia_engine_base_url = "http://localhost:8090"
 #mappingpedia_engine_base_url = "http://127.0.0.1:80/"
 organization_id = "zaragoza_test"
+
 
 class Distribution(View):
 
@@ -259,25 +262,61 @@ class Execute(View):
             return render(request, 'msg.html', {'msg': 'error: getting distribution information from CKAN'})
         url = url_join([mappingpedia_engine_base_url, 'executions'])
         print url
+        e = ExecutionProgress(status=ExecutionProgress.STATUS_INPROGRESS, user=request.session['username'])
+        e.save()
+
+        last_mile_name = request.build_absolute_uri().split('/')[-1]
+        callback_url = request.build_absolute_uri()[:-1-len(last_mile_name)] + '/execution_callback/'+str(e.id)
+        print "call back: %s" % callback_url
+
         data = {
             "mapping_document_id": mapping_id,
             "organization_id":  organization_id,
             "dataset_id": dataset_id,
             "distribution_download_url": ",".join([d['url'] for d in distributions]),
             "use_cache": use_cache,
+            "callback_url": callback_url
         }
         print "data: "
         print data
         response = requests.post(url, data)
         if response.status_code is 200:
-            result_url = json.loads(response.content)['mapping_execution_result_download_url']
-            print "result : "
-            print response.content
-            return render(request, 'msg.html',
-                      {'msg': 'Execution results can be found here ', 'hreftitle': 'download url',
-                       'hreflink': result_url})
-        else:
-            return render(request, 'msg.html', {'msg': 'error from mappingpedia-engine API: '+response.content})
+            return render(request, 'msg.html', {'msg': 'your execution request is in progress.'})
+        #     result_url = json.loads(response.content)['mapping_execution_result_download_url']
+        #     print "result : "
+        #     print response.content
+        #     return render(request, 'msg.html',
+        #               {'msg': 'Execution results can be found here ', 'hreftitle': 'download url',
+        #                'hreflink': result_url})
+        # else:
+        #     return render(request, 'msg.html', {'msg': 'error from mappingpedia-engine API: '+response.content})
+
+@csrf_exempt
+def execution_callback(request, id):
+    print "request post: "
+    print request.POST
+    print type(request.POST)
+
+    json_response = json.loads(request.body)
+
+    e = ExecutionProgress.objects.get(id=id)
+    notification = json_response['notification']
+    if notification['status_code'] == 200:
+        result_url = notification['mapping_execution_result_download_url']
+        e.result_url = result_url
+        e.status = ExecutionProgress.STATUS_SUCCESS
+        e.save()
+        return JsonResponse({'msg': 'success'})
+    else:
+        e.status = ExecutionProgress.STATUS_FAIL
+        e.save()
+        return JsonResponse({'msg': 'failed'})
+
+
+def execution_list(request):
+    execution_results_list = ExecutionProgress.objects.filter(user = request.session['username'])
+
+    return render(request, 'execution_list.html', {'executions': execution_results_list})
 
 
 def home(request):
@@ -732,7 +771,7 @@ def organization_params_check(request):
             request.session['organization'] = organization
             request.session['username'] = request.GET['username']
         else:  # invalid organization
-            clear_organization(request)
+            clear_session(request)
             return render(request, 'msg.html', {'msg': 'invalid organization'})
     elif 'organization' in request.session and 'username' in request.session:
         organizations = [request.session['organization']]
