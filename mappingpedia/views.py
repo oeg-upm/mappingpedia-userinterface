@@ -307,8 +307,10 @@ def execution_callback(request, id):
     json_response = json.loads(request.body)
     print "json response: "
     print json_response
-
-    e = ExecutionProgress.objects.get(id=id)
+    try:
+        e = ExecutionProgress.objects.get(id=id)
+    except Exception as e:
+        return JsonResponse({'msg': 'exception: '+str(e)})
     notification = json_response['notification']
     if notification['status_code'] == 200:
         result_url = notification['mapping_execution_result_download_url']
