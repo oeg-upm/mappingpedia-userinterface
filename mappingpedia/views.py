@@ -300,7 +300,9 @@ def execution_callback(request, id):
     json_response = json.loads(request.body)
 
     e = ExecutionProgress.objects.get(id=id)
-    notification = json_response['notification']
+    #notification = json_response['notification']
+    notification = json_response
+
     if notification['status_code'] == 200:
         result_url = notification['mapping_execution_result_download_url']
         e.result_url = result_url
