@@ -311,7 +311,9 @@ def execution_callback(request, id):
         e = ExecutionProgress.objects.get(id=id)
     except Exception as e:
         return JsonResponse({'msg': 'exception: '+str(e)})
-    notification = json_response['notification']
+    #notification = json_response['notification']
+    notification = json_response
+
     if notification['status_code'] == 200:
         result_url = notification['mapping_execution_result_download_url']
         e.result_url = result_url
