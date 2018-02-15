@@ -265,8 +265,13 @@ class Execute(View):
         e = ExecutionProgress(status=ExecutionProgress.STATUS_INPROGRESS, user=request.session['username'])
         e.save()
 
-        last_mile_name = request.build_absolute_uri().split('/')[-1]
-        callback_url = request.build_absolute_uri()[:-1-len(last_mile_name)] + '/execution_callback/'+str(e.id)
+        print "META: "
+        print request.META['HTTP_REFERER']
+
+
+        last_mile_name = request.META['HTTP_REFERER'].split('/')[-1]
+        print "last_mile: %s" % last_mile_name
+        callback_url = request.META['HTTP_REFERER'][:-1-len(last_mile_name)] + '/execution_callback/'+str(e.id)
         print "call back: %s" % callback_url
 
         data = {
@@ -295,11 +300,17 @@ class Execute(View):
 def execution_callback(request, id):
     print "request post: "
     print request.POST
-    print type(request.POST)
-
+    print "request post as dict: "
+    print request.POST.dict()
+    print "body: "
+    print request.body
     json_response = json.loads(request.body)
-
-    e = ExecutionProgress.objects.get(id=id)
+    print "json response: "
+    print json_response
+    try:
+        e = ExecutionProgress.objects.get(id=id)
+    except Exception as e:
+        return JsonResponse({'msg': 'exception: '+str(e)})
     #notification = json_response['notification']
     notification = json_response
 
