@@ -321,6 +321,7 @@ def execution_callback(request, id):
     e.status = ExecutionProgress.STATUS_SUCCESS
     e.save()
     return JsonResponse({'msg': 'success'})
+    
     #else:
     #   e.status = ExecutionProgress.STATUS_FAIL
     #   e.save()
