@@ -314,17 +314,17 @@ def execution_callback(request, id):
     #notification = json_response['notification']
     notification = json_response
 
-    if notification['status_code'] == 200:
+    #if notification['status_code'] == 200:
         #result_url = notification['mapping_execution_result_download_url']
         result_url = notification['downloadURL']
         e.result_url = result_url
         e.status = ExecutionProgress.STATUS_SUCCESS
         e.save()
         return JsonResponse({'msg': 'success'})
-    else:
-        e.status = ExecutionProgress.STATUS_FAIL
-        e.save()
-        return JsonResponse({'msg': 'failed'})
+    #else:
+    #   e.status = ExecutionProgress.STATUS_FAIL
+    #   e.save()
+#   return JsonResponse({'msg': 'failed'})
 
 
 def execution_list(request):
