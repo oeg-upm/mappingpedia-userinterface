@@ -315,7 +315,8 @@ def execution_callback(request, id):
     notification = json_response
 
     if notification['status_code'] == 200:
-        result_url = notification['mapping_execution_result_download_url']
+        #result_url = notification['mapping_execution_result_download_url']
+        result_url = notification['downloadURL']
         e.result_url = result_url
         e.status = ExecutionProgress.STATUS_SUCCESS
         e.save()
