@@ -1,28 +1,28 @@
 {% extends "base.html" %}
 {% block body %}
 
-  <table class="table table-bordered">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Status</th>
-        <th>Result URL</th>
-      </tr>
-    </thead>
-    <tbody>
+<table class="table table-bordered">
+  <thead>
+  <tr>
+    <th>ID</th>
+    <th>Status</th>
+    <th>Result URL</th>
+  </tr>
+  </thead>
+  <tbody>
 
-    {% for execution in executions %}
-      <tr>
-        <td>{{ execution.id }}</td>
-        <td>{{ execution.status }}</td>
-        <td>{{ execution.result_url }}</td>
-      </tr>
-{% endfor %}
+  {% for execution in executions %}
+  <tr>
+    <td>{{ execution.id }}</td>
+    <td>{{ execution.status }}</td>
+    <td><a href={{ execution.result_url }}>{{ execution.result_url }}</a></td>
+  </tr>
+  {% endfor %}
 
 
 
-    </tbody>
-  </table>
+  </tbody>
+</table>
 
 
 
