@@ -205,7 +205,8 @@ class Mapping(View):
             url = url_join([mappingpedia_engine_base_url, 'mappings', organization])
             data = {
                 "mapping_document_download_url": mapping_file_url,
-                "dataset_id": dataset_name
+                #"dataset_id": dataset_name
+                "ckan_package_name": dataset_name
             }
             response = requests.post(url, data)
             print "the url"
@@ -216,7 +217,10 @@ class Mapping(View):
             url = url_join([mappingpedia_engine_base_url, 'mappings', organization])
             print "the url"
             print url
-            response = requests.post(url, files=[('mapping_document_file', mapping_file)], data={'dataset_id': dataset_name})
+            data = {
+                "ckan_package_name": dataset_name
+            }
+            response = requests.post(url, files=[('mapping_document_file', mapping_file)], data=data)
 
         if response.status_code == 200:
             print response.content
@@ -681,7 +685,9 @@ def generate_mappings(request):
 
             print "the url to upload mapping"
             print url
-            response = requests.post(url, files=[('mapping_document_file', mapping_file_f)], data={'dataset_id': dataset})
+            data = {"ckan_package_name": dataset}
+
+            response = requests.post(url, files=[('mapping_document_file', mapping_file_f)], data=data)
             if response.status_code == 200:
                 print response.content
                 download_url = json.loads(response.content)['mapping_document_download_url']
