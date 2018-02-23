@@ -70,7 +70,7 @@ $(document).ready(function(){
             var i
             var single_option;
             for(i=0;i<datasets.length;i++){
-                single_option = '<option value="'+datasets[i].name+'">'+datasets[i].title+'</option>\n';
+                single_option = '<option value="'+datasets[i].id+'">'+datasets[i].title+'</option>\n';
                 options_html += single_option;
             }//for
              $("#dataset_select").html(options_html);
@@ -146,7 +146,7 @@ $(document).ready(function(){
 
     {%else%}
     <div class="form-group">
-        <label for="organization">Organization Name</label>
+        <label for="organization">Organization</label>
         <select name="organization" class="form-control" id="organization">
             {%for organization in organizations%}
             <option value="{{organization}}">{{organization}}</option>
@@ -158,9 +158,9 @@ $(document).ready(function(){
 
     <div class="form-group">
         <label for="dataset_select">Dataset</label><span id="num-of-datasets"></span>
-        <select name="dataset_name" class="form-control" id="dataset_select">
+        <select name="package_id" class="form-control" id="dataset_select">
             {%for dataset in datasets%}
-            <option value="{{dataset.name}}">{{dataset.title}}</option>
+            <option value="{{dataset.id}}">{{dataset.title}}</option>
             {%endfor%}
         </select>
     </div>
