@@ -262,7 +262,7 @@ class Execute(View):
         if 'mapping' not in request.POST:
             return render(request, 'msg.html', {'msg': 'error: mapping is not passed'})
         organization_id = request.POST['organization']
-        dataset_id = request.POST['dataset']
+        package_id = request.POST['dataset']
         distribution_ids = request.POST.getlist('distribution')
         mapping_id = request.POST['mapping']
         use_cache = request.POST['use_cache']
@@ -286,7 +286,7 @@ class Execute(View):
         data = {
             "mapping_document_id": mapping_id,
             "organization_id":  organization_id,
-            "dataset_id": dataset_id,
+            "ckan_package_id": package_id,
             "distribution_download_url": ",".join([d['url'] for d in distributions]),
             "use_cache": use_cache,
             "callback_url": callback_url
