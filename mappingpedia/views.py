@@ -37,29 +37,34 @@ class Distribution(View):
         else:
             organization = organization_id
 
-        if 'dataset_name' in request.POST:
-            dataset_name = request.POST['dataset_name']
+        if 'package_id' in request.POST:
+            package_id = request.POST['package_id']
         else:
-            return render(request, 'msg.html', {'msg': 'dataset name should not be empty'})
+            return render(request, 'msg.html', {'msg': 'dataset should not be empty'})
+        print "package_id"
+        print package_id
 
-        url = url_join([mappingpedia_engine_base_url, 'distributions', organization, dataset_name])
+        url = url_join([mappingpedia_engine_base_url, 'distributions', organization])
         print "the url"
         print url
 
         if 'distribution_download_url' in request.POST and request.POST['distribution_download_url'].strip() != '':
             distribution_download_url = request.POST['distribution_download_url']
             data = {
+                "ckan_package_id": package_id,
                 "distribution_download_url": distribution_download_url
             }
-            files = {}
-            #response = requests.post(url, data)
+            #files = {}
+            response = requests.post(url, data)
         else:
             distribution_file = request.FILES['distribution_file']
-            data = {}
-            files = [('distribution_file', distribution_file)]
-            #response = requests.post(url, files=[('distribution_file', distribution_file)])
+            data = {
+                "ckan_package_id": package_id
+            }
+            #files = [('distribution_file', distribution_file)]
+            response = requests.post(url, files=[('distribution_file', distribution_file)], data=data)
 
-        response = requests.post(url, files, data)
+        #response = requests.post(url, files, data)
 
         if response.status_code == 200:
             return render(request, 'msg.html', {'msg': 'Distribution has been successfully added.'})
