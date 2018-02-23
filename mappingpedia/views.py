@@ -195,8 +195,8 @@ class Mapping(View):
         else:
             organization = organization_id
 
-        if 'dataset_name' in request.POST:
-            dataset_name = request.POST['dataset_name']
+        if 'package_id' in request.POST:
+            package_id = request.POST['package_id']
         else:
             return render(request, 'msg.html', {'msg': 'dataset name should not be empty'})
 
@@ -206,7 +206,7 @@ class Mapping(View):
             data = {
                 "mapping_document_download_url": mapping_file_url,
                 #"dataset_id": dataset_name
-                "ckan_package_name": dataset_name
+                "ckan_package_id": package_id
             }
             response = requests.post(url, data)
             print "the url"
@@ -218,7 +218,7 @@ class Mapping(View):
             print "the url"
             print url
             data = {
-                "ckan_package_name": dataset_name
+                "ckan_package_id": package_id
             }
             response = requests.post(url, files=[('mapping_document_file', mapping_file)], data=data)
 
@@ -685,7 +685,7 @@ def generate_mappings(request):
 
             print "the url to upload mapping"
             print url
-            data = {"ckan_package_name": dataset}
+            data = {"ckan_package_id": dataset}
 
             response = requests.post(url, files=[('mapping_document_file', mapping_file_f)], data=data)
             if response.status_code == 200:
