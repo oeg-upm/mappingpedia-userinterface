@@ -449,7 +449,7 @@ def get_mappings(request):
 
 
 def get_mappings_for_dataset(dataset):
-    url = url_join([mappingpedia_engine_base_url, 'mappings?dataset_id='+dataset.strip()])
+    url = url_join([mappingpedia_engine_base_url, 'mappings?ckan_package_id='+dataset.strip()])
     print 'get_mappings_for_dataset> url: '+url
     response = requests.get(url)
     if response.status_code == 200:
