@@ -67,7 +67,14 @@ class Distribution(View):
         #response = requests.post(url, files, data)
 
         if response.status_code == 200:
-            return render(request, 'msg.html', {'msg': 'Distribution has been successfully added.'})
+            #return render(request, 'msg.html', {'msg': 'Distribution has been successfully added.'})
+            distribution_id = json.loads(response.content)['distribution_id']
+            distribution_access_url = json.loads(response.content)['distribution_access_url']
+
+            return render(request, 'msg.html',
+                      {'msg': 'The distribution has been registered with id = ' + distribution_id, 'hreftitle': 'access url',
+                       'hreflink': distribution_access_url})
+
         else:
             return render(request, 'msg.html', {'msg': response.content})
 
