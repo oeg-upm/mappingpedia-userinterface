@@ -177,7 +177,10 @@ class Dataset(View):
             return render(request, 'msg.html', {'msg': 'error: no distribution file or URL is passed'})
         if response.status_code == 200:
             dataset_id = json.loads(response.content)['dataset_id']
-            return render(request, 'msg.html', {'msg': 'The dataset has been registered with id = '+dataset_id})
+            dataset_landing_page = json.loads(response.content)['landing_page']
+
+            #return render(request, 'msg.html', {'msg': 'The dataset has been registered with id = '+dataset_id + ' and landing page = ' + dataset_landing_page})
+            return render(request, 'msg.html',{'msg': 'The dataset has been registered with id = '+dataset_id, 'hreftitle': 'landing page', 'hreflink': dataset_landing_page})
         else:
             return render(request, 'msg.html', {'msg': response.content})
 
