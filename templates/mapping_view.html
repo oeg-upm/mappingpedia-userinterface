@@ -70,7 +70,7 @@ $(document).ready(function(){
             var i
             var single_option;
             for(i=0;i<datasets.length;i++){
-                single_option = '<option value="'+datasets[i].id+'">'+datasets[i].title+'</option>\n';
+                single_option = '<option value="'+datasets[i].id+'">'+datasets[i].id + ' ( ' + datasets[i].title + ' )' +'</option>\n';
                 options_html += single_option;
             }//for
              $("#dataset_select").html(options_html);
@@ -160,7 +160,7 @@ $(document).ready(function(){
         <label for="dataset_select">Dataset</label><span id="num-of-datasets"></span>
         <select name="package_id" class="form-control" id="dataset_select">
             {%for dataset in datasets%}
-            <option value="{{dataset.id}}">{{dataset.title}}</option>
+            <option value="{{dataset.id}}">{{dataset.id}} ( {{dataset.title}} )</option>
             {%endfor%}
         </select>
     </div>
