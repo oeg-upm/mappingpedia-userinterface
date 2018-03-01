@@ -348,8 +348,12 @@ def execution_callback(request, id):
 
 
 def execution_list(request):
+    error_or_org = organization_params_check(request)
+    if isinstance(error_or_org, list):
+        organizations = error_or_org
+    else:
+        return error_or_org
     execution_results_list = ExecutionProgress.objects.filter(user = request.session['username'])
-
     return render(request, 'execution_list.html', {'executions': execution_results_list})
 
 
