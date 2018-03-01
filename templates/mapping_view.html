@@ -105,17 +105,27 @@ $(document).ready(function(){
                     for(i=0;i<distributions.length;i++){
                         console.log(distributions[i]);
                         if(distributions[i]["name"] == null || distributions[i]["name"].trim()==""){
-                            single_option = '<option value="'+distributions[i]["id"]+'">'+distributions[i]["id"].substring(0,5)+' ('+distributions[i]["url"]+')'+'</option>\n';
+                            //single_option = '<option value="'+distributions[i]["id"]+'">'+distributions[i]["id"].substring(0,5)+' ('+distributions[i]["url"]+')'+'</option>\n';
+                            single_option = '<option value="'+distributions[i]["id"]+'">'+distributions[i]["url"]+'</option>\n';
                         }
                         else{
-                            single_option = '<option value="'+distributions[i]["id"]+'">'+distributions[i]["id"].substring(0,5)+' ('+distributions[i]["name"]+')'+'</option>\n';
+                            //single_option = '<option value="'+distributions[i]["id"]+'">'+distributions[i]["id"].substring(0,5)+' ('+distributions[i]["name"]+')'+'</option>\n';
+                            single_option = '<option value="'+distributions[i]["id"]+'">'+distributions[i]["url"]+'</option>\n';
                         }
                         select_html += single_option;
                     }
                     $("#distribution").html(select_html);
+                    $("#distribution").change();
+
                 }
             });
     });//change
+
+
+    $("#distribution").change(function(){
+        console.log('distribution value: '+ $("#distribution").text());
+        //$("#distribution_a").attr('href', )
+    });
 
 });//ready
 
@@ -202,6 +212,7 @@ $(document).ready(function(){
         <label for="distribution">Distribution (File)</label>
         <select name="distribution" class="form-control" id="distribution">
         </select>
+        <a id="distribution_a" href=""></a>
         <p>You can create a mapping using our online editor</p>
         <div class="btn btn-primary" id="go-to-editor-button">Go to editor</div>
     </div>

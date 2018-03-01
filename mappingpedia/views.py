@@ -105,6 +105,7 @@ class Explore(View):
         else:
             return render(request, 'msg.html', {'msg': response.content})
 
+
 class Dataset(View):
 
     def get(self, request):
