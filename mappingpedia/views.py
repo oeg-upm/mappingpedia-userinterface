@@ -499,8 +499,12 @@ def editor_json(request, download_url, dataset, distribution):
     print "download url: <%s>" % download_url
     if response.status_code == 200:
         from rmljson import get_json_as_cols
-        headers = get_json_as_cols(response.content)
-        return render(request, 'editor.html', {'headers': headers, 'dataset': dataset, 'distribution': distribution})
+        iterator, headers = get_json_as_cols(response.content)
+        if iterator is None:
+            return render(request,'msg.html', {'error':'can not detect the iterator'})
+        else:
+            return render(request, 'editor.html', {'headers': headers, 'dataset': dataset, 'distribution': distribution,
+                                               'iterator': iterator[0]})
     else:
         return render(request, 'msg.html', {'error': 'can not download file: ' + download_url})
 

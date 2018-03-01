@@ -84,14 +84,14 @@ def get_json_as_cols(json_text):
         jpath_result = get_json_path(j)
         if jpath_result["max_no"] == 0:
             print "max_no is 0"
-            return []
+            return None, []
         else:
             print "json_path: <%s> with num of elements: %d" % (jpath_result["json_path"], jpath_result["max_no"])
-            return json_unfold_json_path(j, jpath_result["json_path"])[0].keys()
+            return jpath_result["json_path"], json_unfold_json_path(j, jpath_result["json_path"])[0].keys()
     except Exception as e:
         print "Error parsing the json text"
         print e
-        return []
+        return None, []
 
 
 if __name__ == "__main__":

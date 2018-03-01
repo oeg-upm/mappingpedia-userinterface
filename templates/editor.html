@@ -655,6 +655,8 @@
 <br>
 
 <form method="POST" action="generate_mappings"> {% csrf_token %}
+
+    <p>detected iterator: {{iterator}}</p>
     <input type="hidden" name="dataset" value="{{dataset}}"/>
 <div class="ui-widget">
     <label for="concept">Choose the concept of this file: </label>
