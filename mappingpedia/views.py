@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from django.shortcuts import render
 from django.views import View
 import os
@@ -316,6 +317,7 @@ class Execute(View):
         # else:
         #     return render(request, 'msg.html', {'msg': 'error from mappingpedia-engine API: '+response.content})
 
+
 @csrf_exempt
 def execution_callback(request, id):
     print "request post: "
@@ -591,7 +593,7 @@ def generate_r2rml_mappings(file_name, entity_class, entity_column, mappings):
     print 'mapping file path:'
     print mapping_file_path
     f = open(mapping_file_path, 'w')
-    f.write(mapping_file)
+    f.write(mapping_file.encode('utf8'))
     f.close()
     return mapping_file_path
 
