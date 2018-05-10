@@ -3,6 +3,8 @@ local/*
 local*
 .venv/*
 
+
+
 # Django
 db.sqlite3
 

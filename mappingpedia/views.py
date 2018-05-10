@@ -14,12 +14,12 @@ from settings import BASE_DIR
 from models import ExecutionProgress
 
 
-ckan_base_url = 'http://83.212.100.226/ckan/api/'
-mappingpedia_engine_base_url = "http://mappingpedia-engine.linkeddata.es"
-#mappingpedia_engine_base_url ="http://83.212.100.226:8090"
-#mappingpedia_engine_base_url = "http://localhost:8090"
-#mappingpedia_engine_base_url = "http://127.0.0.1:80/"
-organization_id = "zaragoza_test"
+# ckan_base_url = 'http://83.212.100.226/ckan/api/'
+# mappingpedia_engine_base_url = "http://mappingpedia-engine.linkeddata.es"
+# #mappingpedia_engine_base_url ="http://83.212.100.226:8090"
+# #mappingpedia_engine_base_url = "http://localhost:8090"
+# #mappingpedia_engine_base_url = "http://127.0.0.1:80/"
+# organization_id = "zaragoza_test"
 
 
 class Distribution(View):
@@ -556,9 +556,11 @@ def get_properties(request):
 
 
 def generate_r2rml_mappings(file_name, entity_class, entity_column, mappings):
+    print "mappings are: "
+    print mappings
     from settings import BASE_DIR
     mapping_id = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(10))
-    single_property_mapping = """
+    single_property_mapping = u"""
         rr:predicateObjectMap [
           rr:predicateMap [ rr:constant schema:%s ];
           rr:objectMap    [ rr:termType rr:Literal; rr:column "\\"%s\\""; ];
@@ -566,7 +568,9 @@ def generate_r2rml_mappings(file_name, entity_class, entity_column, mappings):
     """
     proper_mappings_list = [single_property_mapping % (m["val"].replace('http://schema.org/',''), m["key"].upper()) for m in mappings]
     property_column_mapping = "\n".join(proper_mappings_list)
-    mapping_file = """
+    print "proper mappings list: "
+    print property_column_mapping
+    mapping_file = u"""
     @prefix rr: <http://www.w3.org/ns/r2rml#> .
     @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
     @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
@@ -604,7 +608,7 @@ def generate_rml_mappings(file_name, entity_class, entity_column, mappings, file
         return None
     from settings import BASE_DIR
     mapping_id = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(10))
-    single_property_mapping = """
+    single_property_mapping = u"""
         rr:predicateObjectMap [
           rr:predicate schema:%s;
           rr:objectMap    [ rml:reference "%s" ]
@@ -612,7 +616,7 @@ def generate_rml_mappings(file_name, entity_class, entity_column, mappings, file
     """
     proper_mappings_list = [single_property_mapping % (m["val"].replace('http://schema.org/',''), m["key"]) for m in mappings]
     property_column_mapping = "\n".join(proper_mappings_list)
-    mapping_file = """
+    mapping_file = u"""
         @prefix rr: <http://www.w3.org/ns/r2rml#>.
         @prefix rml: <http://semweb.mmlab.be/ns/rml#> .
         @prefix ql: <http://semweb.mmlab.be/ns/ql#> .
@@ -648,7 +652,7 @@ def generate_rml_mappings(file_name, entity_class, entity_column, mappings, file
     print 'mapping file path:'
     print mapping_file_path
     f = open(mapping_file_path, 'w')
-    f.write(mapping_file)
+    f.write(mapping_file.encode('utf8'))
     f.close()
     return mapping_file_path
 
