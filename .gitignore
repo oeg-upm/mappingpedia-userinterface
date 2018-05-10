@@ -1,6 +1,6 @@
 # local files (generated mappings)
 local/*
-#local*
+local*
 .venv/*
 
 # Django
