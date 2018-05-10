@@ -7,8 +7,9 @@ For more information on this file, see
 https://docs.djangoproject.com/en/1.11/howto/deployment/wsgi/
 """
 
+import mappingpedia.localwsgi
 import os
-import localwsgi
+
 
 from django.core.wsgi import get_wsgi_application
 

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.shortcuts import render
 from django.views import View
-import os
 import requests
 import json
 from django.views.decorators.csrf import csrf_exempt
@@ -13,6 +12,9 @@ from rmljson import get_json_path
 from settings import BASE_DIR
 from models import ExecutionProgress
 
+import os
+
+
 
 # ckan_base_url = 'http://83.212.100.226/ckan/api/'
 # mappingpedia_engine_base_url = "http://mappingpedia-engine.linkeddata.es"
@@ -20,6 +22,13 @@ from models import ExecutionProgress
 # #mappingpedia_engine_base_url = "http://localhost:8090"
 # #mappingpedia_engine_base_url = "http://127.0.0.1:80/"
 # organization_id = "zaragoza_test"
+
+print os.environ['ckan_base_url']
+
+
+ckan_base_url = os.environ['ckan_base_url']
+mappingpedia_engine_base_url = os.environ['mappingpedia_engine_base_url']
+organization_id = os.environ['organization_id']
 
 
 class Distribution(View):

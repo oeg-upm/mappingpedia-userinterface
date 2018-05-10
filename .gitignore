@@ -2,8 +2,7 @@
 local/*
 local*
 .venv/*
-
-
+mappingpedia/localwsgi.py
 
 # Django
 db.sqlite3
