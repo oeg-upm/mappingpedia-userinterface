@@ -1,7 +1,7 @@
 # mappingpedia-userinterface
 This is an interface for mappingpedia engine.
 
-
+localwsgi.py
 ```
 import os
 os.environ['ckan_base_url'] = ''
