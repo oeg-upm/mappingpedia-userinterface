@@ -88,6 +88,7 @@ class Distribution(View):
         else:
             return render(request, 'msg.html', {'msg': response.content})
 
+
 class Explore(View):
 
     def get(self, request):
@@ -196,9 +197,9 @@ class Dataset(View):
         if response.status_code == 200:
             dataset_id = json.loads(response.content)['dataset_id']
             dataset_landing_page = json.loads(response.content)['landing_page']
-
+            ckan_package_id = json.loads(response.content)['ckan_package_id']
             #return render(request, 'msg.html', {'msg': 'The dataset has been registered with id = '+dataset_id + ' and landing page = ' + dataset_landing_page})
-            return render(request, 'msg.html',{'msg': 'The dataset has been registered with id = '+dataset_id, 'hreftitle': 'landing page', 'hreflink': dataset_landing_page})
+            return render(request, 'msg.html',{'msg': 'The dataset has been registered with ckan_package_id = '+ckan_package_id, 'hreftitle': 'landing page', 'hreflink': dataset_landing_page})
         else:
             return render(request, 'msg.html', {'msg': response.content})
 
