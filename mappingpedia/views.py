@@ -601,7 +601,7 @@ def generate_r2rml_mappings(file_name, entity_class, entity_column, mappings):
         ];
         %s
     .
-    """ % (mapping_id, file_name, entity_class, entity_column.upper(), property_column_mapping)
+    """ % (mapping_id, file_name.upper(), entity_class, entity_column.upper(), property_column_mapping)
     print mapping_file
     mapping_file_path = os.path.join(BASE_DIR, 'local', mapping_id+'.r2rml.ttl')
     print 'mapping file path:'
